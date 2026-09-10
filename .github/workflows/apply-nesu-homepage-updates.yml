@@ -1,4 +1,4 @@
-name: Apply NESU homepage updates
+name: Refine NESU homepage preview
 on:
   push:
     branches: [nesu-claude-sep2026-update]
@@ -6,70 +6,60 @@ on:
 permissions:
   contents: write
 jobs:
-  update:
+  refine:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           ref: nesu-claude-sep2026-update
-      - name: Apply homepage presentation update
+      - name: Move AI video to top and add founder profile
         shell: python
         run: |
           from pathlib import Path
           p=Path('index.html')
           s=p.read_text(encoding='utf-8')
-          marker='<!-- NESU SEP-2026 HOMEPAGE UPDATE -->'
+          marker='<!-- NESU VIDEO TOP + FOUNDER QR -->'
           if marker in s:
               raise SystemExit('already applied')
           block=r'''
-          <!-- NESU SEP-2026 HOMEPAGE UPDATE -->
+          <!-- NESU VIDEO TOP + FOUNDER QR -->
           <style>
-          #nesu-video{padding:34px 0 0!important;background:var(--bg)!important}
-          #nesu-video .wrap{max-width:none!important;width:100%!important;padding:0!important;text-align:center}
-          #nesu-video .eyebrow,#nesu-video h2,#nesu-video .lead{display:block;max-width:1100px;margin-left:auto!important;margin-right:auto!important;padding-left:24px;padding-right:24px}
-          #nesu-video video{display:block!important;width:100vw!important;max-width:none!important;border-radius:0!important;box-shadow:none!important;margin-top:26px!important}
-          .nesu-public-benefit{padding:72px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-          .nesu-region-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin:26px 0}
-          .nesu-region{padding:18px 12px;border:1px solid var(--line);border-radius:14px;text-align:center;font-weight:700}
-          .nesu-support-form{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:26px}
-          .nesu-support-form input,.nesu-support-form select,.nesu-support-form textarea{width:100%;padding:13px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:inherit;font:inherit}
-          .nesu-support-form textarea,.nesu-support-form .full{grid-column:1/-1}
-          .nesu-support-form button{padding:13px 20px;border:0;border-radius:10px;font-weight:800;cursor:pointer}
-          .nesu-evolution{margin-top:34px}
-          .nesu-evolution-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:24px 0}
-          .nesu-evolution-card{border:1px solid var(--line);border-radius:16px;padding:22px}
-          @media(max-width:850px){.nesu-region-grid{grid-template-columns:1fr 1fr}.nesu-support-form,.nesu-evolution-grid{grid-template-columns:1fr}.nesu-support-form>*{grid-column:1/-1}}
+          #nesu-video{padding:34px 0 0!important;background:var(--bg)!important;border-bottom:1px solid var(--line)!important}
+          #nesu-video .wrap{max-width:none!important;width:100%!important;padding:0!important;text-align:center!important}
+          #nesu-video .eyebrow,#nesu-video h2,#nesu-video .lead{display:block!important;max-width:1040px!important;margin-left:auto!important;margin-right:auto!important;padding-left:24px!important;padding-right:24px!important}
+          #nesu-video video{display:block!important;width:100vw!important;max-width:none!important;height:auto!important;border-radius:0!important;box-shadow:none!important;margin:26px 0 0!important;background:#000!important}
+          .nesu-founder-home{padding:72px 0;border-top:1px solid var(--line);background:var(--surface-2)}
+          .nesu-founder-grid{display:grid;grid-template-columns:1fr 280px;gap:34px;align-items:center}
+          .nesu-founder-card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:24px;text-align:center;box-shadow:var(--shadow)}
+          .nesu-founder-card img{width:190px;height:190px;background:#fff;padding:10px;border-radius:14px;display:block;margin:8px auto 14px}
+          .nesu-founder-card a{font-weight:700;color:var(--green);text-decoration:none}
+          .nesu-founder-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px}
+          .nesu-founder-actions a{display:inline-block;padding:11px 16px;border-radius:8px;text-decoration:none;font-weight:700;border:1px solid var(--line);background:var(--surface)}
+          @media(max-width:760px){.nesu-founder-grid{grid-template-columns:1fr}.nesu-founder-card{max-width:320px;margin:auto}}
           </style>
           <script>
           document.addEventListener('DOMContentLoaded',()=>{
             const video=document.getElementById('nesu-video');
-            const hero=document.querySelector('main section, body > section, header + section');
-            if(video&&hero) hero.insertAdjacentElement('afterend',video);
-            const nav=document.querySelector('nav');
-            if(nav&&!nav.querySelector('a[href="/founder/"]')){const a=document.createElement('a');a.href='/founder/';a.textContent='Founder';nav.appendChild(a)}
-            document.querySelectorAll('[data-i18n="contact.note"]').forEach(e=>e.remove());
-            const compare=document.getElementById('compare');
-            if(compare){
-              const evolution=document.createElement('div');
-              evolution.className='wrap nesu-evolution';
-              evolution.innerHTML=`<span class="eyebrow">From Bitcoin to Sovereign Digital Settlement</span><h2>Bitcoin → BRICS Pay / BRICS Digital Architecture → NESU</h2><p class="lead">A progression from decentralized digital value transfer, to sovereign payment interoperability, to NESU's proposed asset-backed, zero-interest corridor settlement architecture.</p><div class="nesu-evolution-grid"><div class="nesu-evolution-card"><span class="eyebrow">2008–2009 · Bitcoin</span><h3>Research concept → functioning network</h3><p><em>Bitcoin: A Peer-to-Peer Electronic Cash System</em> was released in 2008 under the pseudonym Satoshi Nakamoto, whose real-world identity remains unknown. The academic-style technical paper included an Abstract and proposed peer-to-peer electronic value transfer without a financial institution as intermediary. The Bitcoin network followed in 2009.</p></div><div class="nesu-evolution-card"><span class="eyebrow">Sovereign interoperability</span><h3>BRICS Pay / digital architecture</h3><p>BRICS payment initiatives explore cross-border interoperability among national payment infrastructures, national-currency settlement and future sovereign digital-finance architecture.</p></div><div class="nesu-evolution-card"><span class="eyebrow">NESU · Proposed</span><h3>Asset-backed sovereign corridors</h3><p>NESU proposes permissioned sovereign settlement through five corridors, backed by 60% allocated physical gold, 20% verified strategic commodities and 20% settlement liquidity, with zero-interest approved sovereign settlement facilities.</p></div></div><p><strong>Historical progression:</strong> Bitcoin proved decentralized digital value transfer → BRICS explores sovereign digital-payment interoperability → NESU proposes an asset-backed, zero-interest sovereign settlement model with corridor-specific architecture.</p><h3>Bitcoin · BRICS Pay / proposed BRICS digital architecture · NESU</h3><div class="table-wrap"><table class="compare" style="min-width:820px"><tr><th>Dimension</th><th>Bitcoin</th><th>BRICS Pay / proposed BRICS digital architecture</th><th>NESU — Proposed</th></tr><tr><td class="dim">Origin</td><td>2008 technical paper / 2009 network</td><td>BRICS cross-border payment cooperation</td><td>NESU research initiative</td></tr><tr><td class="dim">Primary users</td><td>Open / public network</td><td>BRICS+ businesses, institutions and national systems</td><td>Governments, central banks, sovereign institutions and approved counterparties</td></tr><tr><td class="dim">Architecture</td><td>Permissionless</td><td>Interoperable sovereign payment infrastructure</td><td>Permissioned sovereign settlement architecture</td></tr><tr><td class="dim">Monetary backing</td><td>No reserve backing</td><td>Multiple currencies; future unit-of-account concepts under study</td><td><strong>60% physical gold + 20% strategic commodities + 20% settlement liquidity</strong></td></tr><tr><td class="dim">Mining</td><td>Proof-of-work</td><td>Not Bitcoin-style mining</td><td>No Bitcoin-style mining</td></tr><tr><td class="dim">Interest model</td><td>Not applicable to protocol</td><td>Depends on underlying financial system</td><td><strong>0% interest / 0% compounding on approved sovereign settlement facilities</strong></td></tr><tr><td class="dim">Geographic model</td><td>Global network</td><td>BRICS+ network</td><td><strong>Five sovereign corridors</strong></td></tr><tr><td class="dim">Environmental layer</td><td>No built-in climate settlement mechanism</td><td>Sustainability objectives</td><td>GCRS / Green Sovereign Corridors</td></tr><tr><td class="dim">Status</td><td>Operational global network</td><td>Payment ecosystem / developing architecture</td><td><strong>Conceptual — legal and institutional review required</strong></td></tr></table></div><h3 style="margin-top:38px">Detailed comparison — NESU vs. Bitcoin</h3>`;
-              compare.parentNode.insertBefore(evolution,compare);
-            }
-            const anchor=document.getElementById('compare')||document.querySelector('footer');
-            if(anchor){
-              const sec=document.createElement('section');sec.className='nesu-public-benefit';sec.id='public-benefit';
-              sec.innerHTML=`<div class="wrap"><span class="eyebrow">Public Benefit · Research Funding · AI Tariff Impact Model</span><h2>Research designed around measurable public benefit</h2><p class="lead">NESU intends to seek eligible U.S. federal and European Union competitive research funding for AI-supported sovereign settlement, cybersecurity, transparent cross-border trade, green economic corridors and tariff-impact research. Research funding would support public-interest R&amp;D rather than capitalize a digital-currency reserve.</p><h3>How the research can benefit taxpayers</h3><p>Research objectives include reducing settlement friction, improving auditability and compliance, and measuring how tariffs, transportation, energy, exchange-rate and financing costs can flow through supply chains to businesses, workers and households.</p><h3>AI Tariff Impact Model</h3><p>The proposed model evaluates <strong>tariff → import cost → supply-chain cost → settlement/FX cost → producer cost → retail-price impact → household/taxpayer impact</strong>. It can identify disproportionate tariff burdens and model scenarios for reciprocity, negotiation, strategic exemptions or tariff reduction. AI provides analysis; sovereign governments retain legal and policy authority.</p><h3>Institutional &amp; Community Support</h3><p>Select the corridor or region connected to your support, research interest or institutional inquiry.</p><div class="nesu-region-grid"><div class="nesu-region">Europe</div><div class="nesu-region">United States</div><div class="nesu-region">Algeria</div><div class="nesu-region">Middle East / Gulf</div><div class="nesu-region">BRICS Countries</div></div><form class="nesu-support-form" action="mailto:institutional@nesu-sovereign-settlement.ch" method="post" enctype="text/plain"><input name="Name" placeholder="Name" required><input name="Organization" placeholder="Institution / Organization"><select name="Region" required><option value="">Select region / corridor</option><option>Europe</option><option>United States</option><option>Algeria</option><option>Middle East / Gulf</option><option>BRICS Countries</option></select><input name="Country" placeholder="Country"><input class="full" type="email" name="Email" placeholder="Email" required><select class="full" name="Interest"><option>Institutional inquiry</option><option>Research collaboration</option><option>Public / community support</option><option>U.S. federal research funding</option><option>European Union research funding</option><option>Green Sovereign Corridors</option></select><textarea name="Message" rows="5" placeholder="Message / support statement"></textarea><label class="full"><input type="checkbox" required> I support continued research and institutional evaluation of the NESU sovereign settlement initiative.</label><div class="full"><button type="submit">Prepare Institutional Support Email</button></div></form><p style="margin-top:18px"><strong>Official contact:</strong> <a href="mailto:institutional@nesu-sovereign-settlement.ch">institutional@nesu-sovereign-settlement.ch</a></p></div>`;
-              anchor.parentNode.insertBefore(sec,anchor);
+            const hero=document.querySelector('section.hero');
+            if(video&&hero) hero.parentNode.insertBefore(video,hero);
+            if(!document.getElementById('founder-home')){
+              const footer=document.querySelector('footer');
+              if(footer){
+                const sec=document.createElement('section');
+                sec.id='founder-home';sec.className='nesu-founder-home';
+                sec.innerHTML=`<div class="wrap"><div class="nesu-founder-grid"><div><span class="eyebrow">Founder</span><h2>Brahim-BB</h2><p class="lead">Founder, NESU — Nur Energy Settlement Unit</p><p><strong>Research &amp; AI Development supported by Digital-UNI AI Labs</strong></p><p>Telecom · AI · Education · Global Development</p><p>Building bridges through technology and education, with NESU focused on research into sovereign and institutional digital settlement architecture.</p><div class="nesu-founder-actions"><a href="/founder/">Founder profile →</a><a href="https://www.linkedin.com/in/brahim-bb-600153113/" target="_blank" rel="noopener">LinkedIn profile →</a></div></div><div class="nesu-founder-card"><span class="eyebrow">Scan LinkedIn</span><img alt="Scan to open Brahim-BB LinkedIn profile" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAXIAAAFyAQAAAADAX2ykAAADGklEQVR4nO2bQY7bMBBFX40FcvQKcpwkyJMjQzAcPYAco1OkgxvEtxCk+yrLKYrloMuWC5CJpSJRk6YpDJQ8NpqO4yeS//+aQiWM/HqbpLGEOYqYowgxXxcxwyYzi20zWLcYlA4/8HZgG5rkgCMiw6dcBwgBjuP7CIsQc1fjfYQ8ZsbxOIz7Wy6Bwv2Wb8MZPrN0YCA4C/eHhN3wjfpauCZvlLsGQt3xjA4JAetIolr6MQp3xTMqz0OGUY0xWk7jZmDtz/2C7DPeGYMzv8TiGFekcKy2ZUDszx1yS/SGQO3/zbXglp+MXgRgzhdwW7znBgVhMCo6XwxGVZr4OduZWbW0KxP3/H9MnS/AwYQez8kc74THgmi/sQGz7WQ1xNsETbUFdMF9wxHP8qGkSW50uCvWl7TbgPk6qQpnkJ9oHDfZgcr4m3RRBzHKj5rI+4dkUQc/3X4Z+h7z0GcSdJh7cBXghxuP+wh/VOV4SbA3KR26+E1z1OZtyn3HBAZ76VcB8mFcV8P5JDxH1Jzs3xkqDrbiRYn7XnqfVhcn4LTwSPx0QMZsyB8Y4LU6qa+qsNcZHst9nXXDBrKX+XRLskTvweSdBxcFwS7CO/aA9z5kfCObFnQmV+bzaBmEDcR7CeOoK4EcYIXRYRbpg41pdgO+hfzXiqCOPGE0lWBOW/h9RwQKsRlZnL/JwwybRHePBCYZ7x4t5VNwDsGaX4LTA1m8T0DcRzmI81wVcBmmBE0nYYJc7hPMqOZriT4LTAyU/n7XVKtVcPznoM/mf3vbUEE3TuGWm8Jcs8So/vGBHWYN/Yp+GfyeieOQ/1vgRxLtusIFgv2YZx30HYH8xb+Qcf5utYy3HPin4LPA8LTKN/N4KV8rtf+z8QXldqx1tLjFv9/MmHe8cEBrfhWnsZi3OJTdFVgfa8P7A4X7MQlRFvb7d0m0VyEVyHvGkRR3rHyRxLtQ6c+X5PGb6XPGTZTxPSsEn4RKtjlZyReBQHyvCMNl/Rwpf7kE+13xzP6b5+7/9Gu1GveY4M/GPi3+Tx0BLlAHO+Zvf4Fr5QsJtJlAAAAAElFTkSuQmCC"><a href="https://www.linkedin.com/in/brahim-bb-600153113/" target="_blank" rel="noopener">Brahim BB on LinkedIn →</a><p style="font-size:12px;color:var(--muted);margin:8px auto 0">Scan with a phone camera to open the verified profile.</p></div></div></div>`;
+                footer.parentNode.insertBefore(sec,footer);
+              }
             }
           });
           </script>
           '''
           s=s.replace('</body>',block+'\n</body>')
           p.write_text(s,encoding='utf-8')
-      - name: Commit homepage update
+      - name: Commit refined homepage
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add index.html
-          git commit -m "Update NESU homepage presentation and public benefit sections"
+          git commit -m "Move NESU AI video to top and add founder LinkedIn QR"
           git push origin nesu-claude-sep2026-update
