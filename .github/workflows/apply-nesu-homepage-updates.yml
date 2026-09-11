@@ -1,4 +1,4 @@
-name: Fix NESU LinkedIn QR
+name: Make NESU AI video mobile responsive
 on:
   push:
     branches: [nesu-claude-sep2026-update]
@@ -6,31 +6,43 @@ on:
 permissions:
   contents: write
 jobs:
-  fix-qr:
+  responsive-video:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           ref: nesu-claude-sep2026-update
-      - name: Replace broken QR image with verified scannable QR
+      - name: Add responsive video sizing
         shell: python
         run: |
           from pathlib import Path
-          import re
-          qr='iVBORw0KGgoAAAANSUhEUgAAAUgAAAFIAQAAAAAab1qeAAACC0lEQVR4nO2a0WrDMAxFzx37/1++e5DkOINBU2hjdW4pJPUBy0Kyr5TIPPj5ehTc5CY3ucl/QX4DKK6NLAwgIzyN3G1nF/IbIH2InH6UwSDXyO12diHDnyh8KiIsw4P2MXK3nU3JzHd7Svb3zf5ppDPNK9P1J/mK2T+CzHw/VL2wBcg+j3RZ0Qr+zECU40t6VJ5CtMuK7iU115uaA/XXXZsVLUBGEAqwJCn/MBJIeu3sH0VmfIaQF5ACdBz1Wy89Q1oRjJRfbdkqBy9j5/LkEZ+uO2WQarjS99vZhczz3eE+ywJLuLwKOz6vk0rZ6ZSdBsUGEDXoKnZ2IR0OjNiMVohJRa+d71dJCynbH5XlNZDqfgk71yez3kRGdvXq6pTiqDvbrGiN8x0yDHEcRrMc1e4nXyKVWe3RXTLnBv0adjYgp/6Sjy5d7aDp0H0eXSdLdAqMLU3t+X0ePUyOsih+qpiszfQ47LusaIl8r10z3ZkXIUm3/nyiPqpSkxKiRih8vPtLV/M9S6Khmnxsm6Nx12VFC5CuTM9nm0Ae7HaqzyXsbECe3g8pKc9QSkcXr82KVsh3ny9H0VSCfuf7RVJTby77yMLxd+wGa9jZk5QcDRIcj+jeOvtnka4Cs/og2nr+ufodpj6TSiYNh3ZZ0Qr+HO+HVI8uM328tni7nV3I0/shb599k5vc5Cb7kj/o8uePt6OAsAAAAABJRU5ErkJggg=='
-          for fp in [Path('index.html'), Path('founder/index.html')]:
-              s=fp.read_text(encoding='utf-8')
-              pattern=r'(<img[^>]*alt="Scan to open Brahim-BB LinkedIn profile"[^>]*src=")data:image/png;base64,[^"]+("[^>]*>)'
-              s2,n=re.subn(pattern, lambda m: m.group(1)+'data:image/png;base64,'+qr+m.group(2), s)
-              if n==0:
-                  pattern2=r'(<img[^>]*src=")data:image/png;base64,[^"]+("[^>]*alt="Scan to open Brahim-BB LinkedIn profile"[^>]*>)'
-                  s2,n=re.subn(pattern2, lambda m: m.group(1)+'data:image/png;base64,'+qr+m.group(2), s)
-              if n:
-                  fp.write_text(s2,encoding='utf-8')
-      - name: Commit QR fix
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          marker='<!-- NESU RESPONSIVE VIDEO FIX -->'
+          if marker in s:
+              raise SystemExit('already applied')
+          block=r'''
+          <!-- NESU RESPONSIVE VIDEO FIX -->
+          <style>
+          html,body{max-width:100%;overflow-x:hidden}
+          #nesu-video{width:100%;overflow:hidden}
+          #nesu-video .wrap{width:100%!important;max-width:100%!important;margin:0!important;padding:0!important}
+          #nesu-video video{display:block!important;width:100%!important;max-width:100%!important;height:auto!important;aspect-ratio:auto!important;object-fit:contain!important;margin:22px auto 0!important;border-radius:0!important}
+          @media(max-width:768px){
+            #nesu-video{padding-top:22px!important}
+            #nesu-video .eyebrow,#nesu-video h2,#nesu-video .lead{box-sizing:border-box;max-width:100%!important;padding-left:18px!important;padding-right:18px!important}
+            #nesu-video h2{font-size:clamp(1.45rem,7vw,2rem)!important;line-height:1.12!important}
+            #nesu-video .lead{font-size:.96rem!important;line-height:1.5!important}
+            #nesu-video video{width:100%!important;max-width:100%!important;height:auto!important;object-fit:contain!important}
+          }
+          </style>
+          '''
+          s=s.replace('</body>',block+'\n</body>')
+          p.write_text(s,encoding='utf-8')
+      - name: Commit responsive video fix
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add index.html founder/index.html
-          git commit -m "Fix visible scannable LinkedIn QR code" || exit 0
+          git add index.html
+          git commit -m "Make NESU AI video responsive on mobile"
           git push origin nesu-claude-sep2026-update
