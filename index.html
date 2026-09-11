@@ -524,4 +524,20 @@ document.addEventListener('DOMContentLoaded',()=>{
 });
 </script>
 
+
+<!-- NESU RESPONSIVE VIDEO FIX -->
+<style>
+html,body{max-width:100%;overflow-x:hidden}
+#nesu-video{width:100%;overflow:hidden}
+#nesu-video .wrap{width:100%!important;max-width:100%!important;margin:0!important;padding:0!important}
+#nesu-video video{display:block!important;width:100%!important;max-width:100%!important;height:auto!important;aspect-ratio:auto!important;object-fit:contain!important;margin:22px auto 0!important;border-radius:0!important}
+@media(max-width:768px){
+  #nesu-video{padding-top:22px!important}
+  #nesu-video .eyebrow,#nesu-video h2,#nesu-video .lead{box-sizing:border-box;max-width:100%!important;padding-left:18px!important;padding-right:18px!important}
+  #nesu-video h2{font-size:clamp(1.45rem,7vw,2rem)!important;line-height:1.12!important}
+  #nesu-video .lead{font-size:.96rem!important;line-height:1.5!important}
+  #nesu-video video{width:100%!important;max-width:100%!important;height:auto!important;object-fit:contain!important}
+}
+</style>
+
 </body></html>
