@@ -1,0 +1,213 @@
+name: Fix NESU Open Letter and Bitcoin i18n
+
+on:
+  push:
+    branches:
+      - fix-open-letter-bitcoin-i18n
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix-open-letter-bitcoin-i18n
+      - name: Patch NESU homepage
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+          marker = '<!-- NESU OPEN LETTER + BITCOIN I18N PATCH -->'
+          if marker in s:
+              print('Patch already present; no changes needed.')
+              raise SystemExit(0)
+
+          patch = r'''
+
+<!-- NESU OPEN LETTER + BITCOIN I18N PATCH -->
+<style>
+  #regulatory-letter{background:var(--surface-2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  #regulatory-letter .reg-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:24px}
+  #regulatory-letter .reg-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px}
+  #regulatory-letter .reg-card h3{margin-bottom:8px}
+  #regulatory-letter .reg-card p{margin:0;color:var(--muted);font-size:14px}
+  .nesu-evolution[data-nesu-localized="true"]{margin-top:34px}
+  @media(max-width:850px){#regulatory-letter .reg-grid{grid-template-columns:1fr}}
+</style>
+<script>
+(function(){
+  const COPY = {
+    en: {
+      openEyebrow: 'Open letter',
+      openTitle: 'An open letter to banking & securities regulators — Europe and the Middle East',
+      openLead: 'NESU is a conceptual sovereign-settlement research initiative. It has not been submitted to any regulator, no regulatory approval is claimed, and implementation would require formal legal review, institutional participation and the appropriate licensed structure.',
+      chTitle: 'Switzerland',
+      chText: 'NESU seeks legal and regulatory review of the proposed institution-only settlement architecture, reserve framework, zero-interest sovereign settlement facilities and Green Sovereign Corridors. Any Swiss participation would proceed only through applicable regulated channels.',
+      euTitle: 'European Union',
+      euText: 'NESU invites review of how the proposed corridor architecture would interact with EU payments, digital-finance, AML/KYC, market-infrastructure and cross-border settlement requirements. The proposal does not claim authorization under EU law.',
+      dzTitle: 'Algeria',
+      dzText: 'Formal Algerian legal review is a gating step. Algeria’s Law No. 25-10 (2025) restricts private cryptocurrency activity; whether a state-operated, non-tradable, institution-only sovereign settlement architecture falls outside that scope is a legal question to be determined by competent authorities.',
+      evoEyebrow: 'From Bitcoin to Sovereign Digital Settlement',
+      evoTitle: 'Bitcoin → BRICS Pay / BRICS Digital Architecture → NESU',
+      evoLead: 'A progression from decentralized digital value transfer, to sovereign payment interoperability, to NESU’s proposed asset-backed, zero-interest corridor settlement architecture.',
+      bEra: '2008–2009 · Bitcoin', bH: 'Research concept → functioning network',
+      bP: '<em>Bitcoin: A Peer-to-Peer Electronic Cash System</em> was released in 2008 under the pseudonym Satoshi Nakamoto, whose real-world identity remains unknown. The academic-style technical paper included an Abstract and proposed peer-to-peer electronic value transfer without a financial institution as intermediary. The Bitcoin network followed in 2009.',
+      brEra: 'Sovereign interoperability', brH: 'BRICS Pay / digital architecture',
+      brP: 'BRICS payment initiatives explore cross-border interoperability among national payment infrastructures, national-currency settlement and future sovereign digital-finance architecture.',
+      nEra: 'NESU · Proposed', nH: 'Asset-backed sovereign corridors',
+      nP: 'NESU proposes permissioned sovereign settlement through five corridors, backed by 60% allocated physical gold, 20% verified strategic commodities and 20% settlement liquidity, with zero-interest approved sovereign settlement facilities.',
+      progression: 'Historical progression:',
+      progressionText: 'Bitcoin proved decentralized digital value transfer → BRICS explores sovereign digital-payment interoperability → NESU proposes an asset-backed, zero-interest sovereign settlement model with corridor-specific architecture.',
+      compareTitle: 'Bitcoin · BRICS Pay / proposed BRICS digital architecture · NESU',
+      detail: 'Detailed comparison — NESU vs. Bitcoin',
+      th: ['Dimension','Bitcoin','BRICS Pay / proposed BRICS digital architecture','NESU — Proposed'],
+      rows: [
+        ['Origin','2008 technical paper / 2009 network','BRICS cross-border payment cooperation','NESU research initiative'],
+        ['Primary users','Open / public network','BRICS+ businesses, institutions and national systems','Governments, central banks, sovereign institutions and approved counterparties'],
+        ['Architecture','Permissionless','Interoperable sovereign payment infrastructure','Permissioned sovereign settlement architecture'],
+        ['Monetary backing','No reserve backing','Multiple currencies; future unit-of-account concepts under study','<strong>60% physical gold + 20% strategic commodities + 20% settlement liquidity</strong>'],
+        ['Mining','Proof-of-work','Not Bitcoin-style mining','No Bitcoin-style mining'],
+        ['Interest model','Not applicable to protocol','Depends on underlying financial system','<strong>0% interest / 0% compounding on approved sovereign settlement facilities</strong>'],
+        ['Geographic model','Global network','BRICS+ network','<strong>Five sovereign corridors</strong>'],
+        ['Environmental layer','No built-in climate settlement mechanism','Sustainability objectives','GCRS / Green Sovereign Corridors'],
+        ['Status','Operational global network','Payment ecosystem / developing architecture','<strong>Conceptual — legal and institutional review required</strong>']
+      ]
+    },
+    fr: {
+      openEyebrow: 'Lettre ouverte',
+      openTitle: 'Lettre ouverte aux autorités de régulation bancaire et des marchés — Europe et Moyen-Orient',
+      openLead: 'NESU est une initiative conceptuelle de recherche sur le règlement souverain. Elle n’a été soumise à aucune autorité de régulation, ne revendique aucune approbation réglementaire et toute mise en œuvre exigerait un examen juridique formel, la participation d’institutions et une structure dûment autorisée.',
+      chTitle: 'Suisse',
+      chText: 'NESU sollicite un examen juridique et réglementaire de l’architecture de règlement réservée aux institutions, du cadre de réserves, des facilités souveraines de règlement à intérêt zéro et des Corridors Souverains Verts. Toute participation suisse passerait uniquement par les canaux réglementés applicables.',
+      euTitle: 'Union européenne',
+      euText: 'NESU invite à examiner l’articulation de l’architecture de corridor proposée avec les règles européennes relatives aux paiements, à la finance numérique, à la LCB-FT/KYC, aux infrastructures de marché et au règlement transfrontalier. La proposition ne revendique aucune autorisation au titre du droit de l’UE.',
+      dzTitle: 'Algérie',
+      dzText: 'Un examen juridique formel en Algérie constitue une étape préalable. La loi n° 25-10 (2025) restreint les activités privées liées aux cryptomonnaies ; la question de savoir si une architecture souveraine, exploitée par l’État, non négociable et réservée aux institutions se situe hors de ce champ doit être tranchée par les autorités compétentes.',
+      evoEyebrow: 'De Bitcoin au règlement numérique souverain',
+      evoTitle: 'Bitcoin → BRICS Pay / architecture numérique des BRICS → NESU',
+      evoLead: 'Une évolution du transfert de valeur numérique décentralisé vers l’interopérabilité souveraine des paiements, puis vers l’architecture de règlement par corridors, adossée à des actifs et sans intérêt, proposée par NESU.',
+      bEra: '2008–2009 · Bitcoin', bH: 'Concept de recherche → réseau opérationnel',
+      bP: '<em>Bitcoin: A Peer-to-Peer Electronic Cash System</em> a été publié en 2008 sous le pseudonyme Satoshi Nakamoto, dont l’identité réelle demeure inconnue. Ce document technique de style académique comportait un résumé et proposait un transfert électronique de valeur de pair à pair sans institution financière intermédiaire. Le réseau Bitcoin a suivi en 2009.',
+      brEra: 'Interopérabilité souveraine', brH: 'BRICS Pay / architecture numérique',
+      brP: 'Les initiatives de paiement des BRICS explorent l’interopérabilité transfrontalière entre infrastructures nationales de paiement, le règlement en monnaies nationales et de futures architectures souveraines de finance numérique.',
+      nEra: 'NESU · Proposition', nH: 'Corridors souverains adossés à des actifs',
+      nP: 'NESU propose un règlement souverain permissionné à travers cinq corridors, adossé à 60 % d’or physique alloué, 20 % de matières premières stratégiques vérifiées et 20 % de liquidité de règlement, avec des facilités souveraines de règlement approuvées à intérêt zéro.',
+      progression: 'Évolution historique :',
+      progressionText: 'Bitcoin a démontré le transfert de valeur numérique décentralisé → les BRICS explorent l’interopérabilité souveraine des paiements numériques → NESU propose un modèle souverain de règlement adossé à des actifs, sans intérêt et organisé par corridors.',
+      compareTitle: 'Bitcoin · BRICS Pay / architecture numérique BRICS proposée · NESU',
+      detail: 'Comparaison détaillée — NESU vs. Bitcoin',
+      th: ['Dimension','Bitcoin','BRICS Pay / architecture numérique BRICS proposée','NESU — Proposition'],
+      rows: [
+        ['Origine','Document technique de 2008 / réseau de 2009','Coopération BRICS sur les paiements transfrontaliers','Initiative de recherche NESU'],
+        ['Utilisateurs principaux','Réseau ouvert / public','Entreprises, institutions et systèmes nationaux BRICS+','Gouvernements, banques centrales, institutions souveraines et contreparties approuvées'],
+        ['Architecture','Sans permission','Infrastructure de paiement souveraine interopérable','Architecture de règlement souverain permissionnée'],
+        ['Adossement monétaire','Aucune réserve d’adossement','Plusieurs monnaies ; concepts futurs d’unité de compte à l’étude','<strong>60 % or physique + 20 % matières premières stratégiques + 20 % liquidité de règlement</strong>'],
+        ['Minage','Preuve de travail','Pas de minage de type Bitcoin','Aucun minage de type Bitcoin'],
+        ['Modèle d’intérêt','Non applicable au protocole','Dépend du système financier sous-jacent','<strong>0 % d’intérêt / 0 % de capitalisation sur les facilités souveraines de règlement approuvées</strong>'],
+        ['Modèle géographique','Réseau mondial','Réseau BRICS+','<strong>Cinq corridors souverains</strong>'],
+        ['Dimension environnementale','Aucun mécanisme climatique intégré','Objectifs de durabilité','GCRS / Corridors Souverains Verts'],
+        ['Statut','Réseau mondial opérationnel','Écosystème de paiement / architecture en développement','<strong>Conceptuel — examen juridique et institutionnel requis</strong>']
+      ]
+    },
+    ar: {
+      openEyebrow: 'رسالة مفتوحة',
+      openTitle: 'رسالة مفتوحة إلى الهيئات الرقابية المصرفية وهيئات الأوراق المالية — أوروبا والشرق الأوسط',
+      openLead: 'NESU مبادرة بحثية تصورية للتسوية السيادية. لم تُقدَّم إلى أي جهة رقابية، ولا تدّعي الحصول على أي موافقة تنظيمية، وأي تنفيذ فعلي يتطلب مراجعة قانونية رسمية ومشاركة مؤسساتية وهيكلاً مرخّصاً وفق القوانين المعمول بها.',
+      chTitle: 'سويسرا',
+      chText: 'تطلب NESU مراجعة قانونية وتنظيمية للبنية المقترحة والمخصصة للمؤسسات، وإطار الاحتياطيات، وتسهيلات التسوية السيادية بفائدة صفرية، والممرات السيادية الخضراء. وأي مشاركة سويسرية لا تكون إلا عبر القنوات الخاضعة للتنظيم المعمول به.',
+      euTitle: 'الاتحاد الأوروبي',
+      euText: 'تدعو NESU إلى دراسة مدى توافق بنية الممرات المقترحة مع قواعد الاتحاد الأوروبي المتعلقة بالمدفوعات والتمويل الرقمي ومكافحة غسل الأموال ومعرفة العميل والبنية التحتية للأسواق والتسوية عبر الحدود. ولا تدّعي المبادرة أي ترخيص بموجب قانون الاتحاد الأوروبي.',
+      dzTitle: 'الجزائر',
+      dzText: 'المراجعة القانونية الرسمية في الجزائر شرط أساسي قبل أي خطوة تنفيذية. يقيّد القانون رقم 25-10 لسنة 2025 نشاط العملات المشفّرة الخاصة؛ أما ما إذا كانت بنية تسوية سيادية تديرها الدولة، غير قابلة للتداول ومخصصة للمؤسسات فقط، تقع خارج هذا النطاق فهو سؤال قانوني تفصل فيه السلطات المختصة.',
+      evoEyebrow: 'من بيتكوين إلى التسوية الرقمية السيادية',
+      evoTitle: 'بيتكوين ← BRICS Pay / البنية الرقمية لبريكس ← NESU',
+      evoLead: 'مسار تطور يبدأ من نقل القيمة الرقمية اللامركزي، ثم قابلية التشغيل البيني للمدفوعات السيادية، وصولاً إلى بنية تسوية مقترحة من NESU عبر ممرات مدعومة بأصول وبدون فوائد.',
+      bEra: '2008–2009 · بيتكوين', bH: 'فكرة بحثية ← شبكة عاملة',
+      bP: 'نُشرت ورقة <em>Bitcoin: A Peer-to-Peer Electronic Cash System</em> عام 2008 باسم مستعار هو ساتوشي ناكاموتو، ولا تزال هويته الحقيقية غير معروفة. تضمنت الورقة التقنية ذات الطابع الأكاديمي ملخصاً واقترحت نقل القيمة إلكترونياً من نظير إلى نظير دون مؤسسة مالية وسيطة. ثم انطلقت شبكة بيتكوين عام 2009.',
+      brEra: 'قابلية التشغيل البيني السيادية', brH: 'BRICS Pay / البنية الرقمية',
+      brP: 'تستكشف مبادرات الدفع في دول بريكس التشغيل البيني عبر الحدود بين البنى الوطنية للمدفوعات، والتسوية بالعملات الوطنية، وبنى مستقبلية للتمويل الرقمي السيادي.',
+      nEra: 'NESU · مقترح', nH: 'ممرات سيادية مدعومة بأصول',
+      nP: 'تقترح NESU تسوية سيادية مرخّصة ومقيّدة عبر خمسة ممرات، مدعومة بنسبة 60٪ من الذهب المادي المخصص، و20٪ من السلع الاستراتيجية الموثقة، و20٪ من سيولة التسوية، مع تسهيلات تسوية سيادية معتمدة بفائدة صفرية.',
+      progression: 'التطور التاريخي:',
+      progressionText: 'أثبتت بيتكوين إمكانية نقل القيمة الرقمية اللامركزي ← تستكشف بريكس التشغيل البيني للمدفوعات الرقمية السيادية ← تقترح NESU نموذج تسوية سيادي مدعوم بأصول، بدون فوائد، ومبني على ممرات محددة.',
+      compareTitle: 'بيتكوين · BRICS Pay / البنية الرقمية المقترحة لبريكس · NESU',
+      detail: 'مقارنة تفصيلية — NESU مقابل بيتكوين',
+      th: ['البعد','بيتكوين','BRICS Pay / البنية الرقمية المقترحة لبريكس','NESU — مقترح'],
+      rows: [
+        ['النشأة','ورقة تقنية 2008 / شبكة 2009','تعاون بريكس في المدفوعات عبر الحدود','مبادرة NESU البحثية'],
+        ['المستخدمون الرئيسيون','شبكة مفتوحة / عامة','شركات ومؤسسات وأنظمة وطنية في BRICS+','الحكومات والبنوك المركزية والمؤسسات السيادية والأطراف المعتمدة'],
+        ['البنية','دون إذن مسبق','بنية دفع سيادية قابلة للتشغيل البيني','بنية تسوية سيادية مقيّدة ومصرّح بها'],
+        ['الدعم النقدي','دون احتياطي داعم','عملات متعددة؛ مفاهيم مستقبلية لوحدة حساب قيد الدراسة','<strong>60٪ ذهب مادي + 20٪ سلع استراتيجية + 20٪ سيولة تسوية</strong>'],
+        ['التعدين','إثبات العمل','ليس تعديناً على نمط بيتكوين','لا يوجد تعدين على نمط بيتكوين'],
+        ['نموذج الفائدة','غير منطبق على البروتوكول','يعتمد على النظام المالي الأساسي','<strong>0٪ فائدة / 0٪ تراكم على تسهيلات التسوية السيادية المعتمدة</strong>'],
+        ['النطاق الجغرافي','شبكة عالمية','شبكة BRICS+','<strong>خمسة ممرات سيادية</strong>'],
+        ['البعد البيئي','لا توجد آلية مناخية مدمجة','أهداف استدامة','GCRS / الممرات السيادية الخضراء'],
+        ['الحالة','شبكة عالمية عاملة','منظومة دفع / بنية قيد التطوير','<strong>تصوري — يتطلب مراجعة قانونية ومؤسساتية</strong>']
+      ]
+    }
+  };
+
+  function esc(v){ return String(v == null ? '' : v); }
+  function tableRows(rows){ return rows.map(r => `<tr><td class="dim">${esc(r[0])}</td><td>${esc(r[1])}</td><td>${esc(r[2])}</td><td>${esc(r[3])}</td></tr>`).join(''); }
+
+  function render(lang){
+    lang = COPY[lang] ? lang : 'en';
+    const c = COPY[lang];
+
+    document.querySelectorAll('.nesu-evolution').forEach(el => el.remove());
+    const compare = document.getElementById('compare');
+    if(compare){
+      const evolution = document.createElement('div');
+      evolution.className = 'wrap nesu-evolution';
+      evolution.setAttribute('data-nesu-localized','true');
+      evolution.innerHTML = `<span class="eyebrow">${c.evoEyebrow}</span><h2>${c.evoTitle}</h2><p class="lead">${c.evoLead}</p><div class="nesu-evolution-grid"><div class="nesu-evolution-card"><span class="eyebrow">${c.bEra}</span><h3>${c.bH}</h3><p>${c.bP}</p></div><div class="nesu-evolution-card"><span class="eyebrow">${c.brEra}</span><h3>${c.brH}</h3><p>${c.brP}</p></div><div class="nesu-evolution-card"><span class="eyebrow">${c.nEra}</span><h3>${c.nH}</h3><p>${c.nP}</p></div></div><p><strong>${c.progression}</strong> ${c.progressionText}</p><h3>${c.compareTitle}</h3><div class="table-wrap"><table class="compare" style="min-width:820px"><tr>${c.th.map(x=>`<th>${x}</th>`).join('')}</tr>${tableRows(c.rows)}</table></div><h3 style="margin-top:38px">${c.detail}</h3>`;
+      compare.parentNode.insertBefore(evolution, compare);
+    }
+
+    let reg = document.getElementById('regulatory-letter');
+    if(!reg){
+      reg = document.createElement('section');
+      reg.id = 'regulatory-letter';
+      const roadmap = document.getElementById('roadmap');
+      if(roadmap) roadmap.parentNode.insertBefore(reg, roadmap);
+      else (document.querySelector('footer') || document.body).parentNode.insertBefore(reg, document.querySelector('footer'));
+    }
+    reg.innerHTML = `<div class="wrap"><span class="eyebrow">${c.openEyebrow}</span><h2>${c.openTitle}</h2><p class="lead">${c.openLead}</p><div class="reg-grid"><article class="reg-card"><h3>${c.chTitle}</h3><p>${c.chText}</p></article><article class="reg-card"><h3>${c.euTitle}</h3><p>${c.euText}</p></article><article class="reg-card"><h3>${c.dzTitle}</h3><p>${c.dzText}</p></article></div></div>`;
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+    render(document.documentElement.lang || 'en');
+    const observer = new MutationObserver(function(mutations){
+      if(mutations.some(m => m.type === 'attributes' && m.attributeName === 'lang')) render(document.documentElement.lang || 'en');
+    });
+    observer.observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
+  });
+})();
+</script>
+'''
+
+          if '</body>' not in s:
+              raise SystemExit('Could not locate </body> in index.html')
+          s = s.replace('</body>', patch + '\n</body>', 1)
+          p.write_text(s, encoding='utf-8')
+          print('NESU Open Letter and Bitcoin i18n patch inserted.')
+          PY
+      - name: Commit repair
+        shell: bash
+        run: |
+          if git diff --quiet -- index.html; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Restore Open Letter and localize Bitcoin history"
+          git push origin HEAD:fix-open-letter-bitcoin-i18n
