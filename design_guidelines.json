@@ -1,0 +1,173 @@
+{
+  "app_name": "NESU — NUR Energy Settlement Unit",
+  "personality": "6 Glass / Luxe DARK",
+  "personality_one_liner": "A sovereign-grade, authoritative institutional reference app using deep cinematic darks, frosted glass, and gold/green accents to project absolute trust and global scale.",
+  "color": {
+    "surface": "#050A10",
+    "onSurface": "#F3F4F6",
+    "surfaceSecondary": "#0B131E",
+    "onSurfaceSecondary": "#E5E7EB",
+    "surfaceTertiary": "#111A26",
+    "onSurfaceTertiary": "#D1D5DB",
+    "surfaceInverse": "#FFFFFF",
+    "onSurfaceInverse": "#050A10",
+    "brand": "#D4AF37",
+    "onBrand": "#050A10",
+    "brandPrimary": "#D4AF37",
+    "onBrandPrimary": "#050A10",
+    "brandSecondary": "#1E4E3B",
+    "onBrandSecondary": "#F3F4F6",
+    "brandTertiary": "#26231A",
+    "onBrandTertiary": "#D4AF37",
+    "success": "#1E4E3B",
+    "onSuccess": "#F3F4F6",
+    "warning": "#B8860B",
+    "onWarning": "#050A10",
+    "error": "#6B1F1F",
+    "onError": "#F3F4F6",
+    "info": "#2A3645",
+    "onInfo": "#F3F4F6",
+    "border": "#1F2937",
+    "borderStrong": "#374151",
+    "divider": "#1F2937",
+    "muted": "#8B98A9"
+  },
+  "typography": {
+    "displayFontFamily": "Cormorant Garamond",
+    "textFontFamily": "Geist",
+    "scale": {
+      "sm": 12,
+      "base": 14,
+      "lg": 16,
+      "xl": 20,
+      "2xl": 24
+    }
+  },
+  "spacing": {
+    "rule": "Generous, editorial margins. Use lg/xl padding to avoid density, giving the policy text a high-end brochure feel.",
+    "xs": 4,
+    "sm": 8,
+    "md": 12,
+    "lg": 16,
+    "xl": 24,
+    "2xl": 32,
+    "3xl": 48
+  },
+  "radius_tokens": {
+    "sm": 4,
+    "md": 8,
+    "lg": 16,
+    "pill": 999
+  },
+  "shadow_tier": 0,
+  "navigation": "bottom_tabs",
+  "icon_set": "Phosphor",
+  "glassmorphism": {
+    "enabled": true,
+    "do's": [
+      "Use heavy blur (glass) on the bottom tab bar and sticky headers to create cinematic depth against the dark backgrounds.",
+      "Use glass overlays on the brand hero card 'GOV·POWER·TRADE' over the dark map."
+    ],
+    "dont's": [
+      "Do not use glass on dense comparison tables or form inputs; keep utilitarian elements solid for legibility."
+    ]
+  },
+  "platform_libraries": {
+    "glass": {
+      "ios": "expo-glass-effect",
+      "android": "expo-blur",
+      "low_end_android_fallback": "solid surfaceSecondary"
+    },
+    "image": "expo-image",
+    "blur": "expo-blur",
+    "bottom_sheet": "@gorhom/bottom-sheet",
+    "animation": "react-native-reanimated",
+    "gesture": "react-native-gesture-handler"
+  },
+  "screens": [
+    {
+      "name": "Home",
+      "purpose": "Introduce NESU's sovereign authority with a cinematic brand card and clearly delineate its institutional purpose.",
+      "states": {
+        "loading": "Centered minimalist gold spinner.",
+        "empty": "N/A",
+        "error": "Standard dark card with retry button."
+      },
+      "layout": "Header: Trilingual switcher (EN/FR/ع). Hero: High-end 'GOV·POWER·TRADE' glass card stacked over the dark world map background. Below: A prominent 'who this is for / who this is not for' two-column or stacked card layout with refined borders."
+    },
+    {
+      "name": "How It Works",
+      "purpose": "Explain the zero-interest, non-crypto architectural layers.",
+      "states": {
+        "loading": "Skeleton architecture cards.",
+        "empty": "N/A",
+        "error": "Error loading architecture data."
+      },
+      "layout": "Top: 'SERVICE ≠ MONEY' callout block (subtle warning/info styling). Body: A vertical scroll of 6 layer cards. Each card uses a brandTertiary tinted icon container and Cormorant Garamond title, presenting the layers as a definitive stack."
+    },
+    {
+      "name": "Green Corridors",
+      "purpose": "Showcase global trade corridors and their statuses.",
+      "states": {
+        "loading": "Skeleton video block and list.",
+        "empty": "No corridors available.",
+        "error": "Error loading video/corridors."
+      },
+      "layout": "Top: 16:9 autoplaying muted explainer video. Below: Vertical list of 5 Corridor Token cards. Each card features a glass surface, token name, and a prominent status tag (e.g., 'Lead Corridor' in brandPrimary, 'Roadmap' in muted styling). No purchase buttons."
+    },
+    {
+      "name": "Comparison",
+      "purpose": "Contrast NESU's stability against Bitcoin's volatility.",
+      "states": {
+        "loading": "Skeleton table rows.",
+        "empty": "N/A",
+        "error": "Error loading comparison."
+      },
+      "layout": "A structured, highly legible grid/table. NESU column highlighted with a subtle brandTertiary background tint. Bitcoin column muted. Below table: A 'Real-World Precedents' section featuring small logo/icon rows for Project mBridge, Buna, etc."
+    },
+    {
+      "name": "Pledge of Support",
+      "purpose": "Capture symbolic institutional alignment without actual fund transfer.",
+      "states": {
+        "loading": "Spinner on submit.",
+        "empty": "N/A",
+        "error": "Form validation errors."
+      },
+      "layout": "Top: Live region-broken-down pledge counter (grid of 6 regions with numbers). Middle: Clean, single-column form (Name, Institution, Country, Email, Tier, Region). Bottom: On submit, replaces form with the generated 'Certificate of Pledged Support' (glass card with watermark text overlay)."
+    },
+    {
+      "name": "Research & Governance",
+      "purpose": "Provide access to multilingual sovereign-grade PDF briefs.",
+      "states": {
+        "loading": "Skeleton document rows.",
+        "empty": "No documents published yet.",
+        "error": "Failed to fetch document links."
+      },
+      "layout": "List of documents. Each row has a PDF icon, document title in the respective language, and an open action. Uses a consistent 56pt tappable height."
+    }
+  ],
+  "images": {
+    "hero_world_map": {
+      "url": "https://images.unsplash.com/photo-1684610529682-553625a1ffed?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA3MDB8MHwxfHNlYXJjaHwxfHxkYXJrJTIwd29ybGQlMjBtYXAlMjBnbG93aW5nJTIwbm9kZXMlMjBuZXR3b3JrfGVufDB8fHx8MTc4OTU4MTQ1MHww&ixlib=rb-4.1.0&q=85",
+      "alt": "Dark world map with glowing network lines"
+    },
+    "nesu_logo_fallback": {
+      "url": "https://images.pexels.com/photos/6120396/pexels-photo-6120396.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      "alt": "Gold laurel wreath on dark surface (fallback visual)"
+    },
+    "green_energy_corridors": {
+      "url": "https://images.unsplash.com/photo-1601068674997-00ddd7344c40?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Njl8MHwxfHNlYXJjaHwxfHxncmVlbiUyMGdsb3dpbmclMjBlbmVyZ3klMjBsaW5lcyUyMG5ldHdvcmslMjBkYXJrfGVufDB8fHx8MTc4OTU4MTQ1MHww&ixlib=rb-4.1.0&q=85",
+      "alt": "Green glowing energy lines"
+    }
+  },
+  "instructions_to_main_agent": [
+    "CRITICAL: Trilingual Header & RTL Layout. The app must support English, French, and Arabic. Build a robust `I18nManager` context. The language switcher (EN / FR / ع) must live in a persistent header across ALL screens and fit cleanly within 390px without clipping.",
+    "CRITICAL: 6-Tab Bottom Navigation. The user explicitly requested 6 tabs. To prevent cramping, use a highly compact tab bar. Rely on `Phosphor` icons, potentially hiding text labels on smaller devices or utilizing a slightly scrollable/packed flex layout to ensure 6 items fit beautifully.",
+    "CRITICAL: Footer Disclaimer. A permanent footer disclaimer ('NESU is a conceptual research...') must exist at the bottom of EVERY screen's scrollview (or pinned above the tab bar).",
+    "THEME: Stick rigorously to the dark mode palette (surface: #050A10). Ensure text contrast is AAA. Use the brandPrimary (#D4AF37 - Gold) and brandSecondary (#1E4E3B - Green) strictly as strategic accents, not overwhelming backgrounds.",
+    "TYPOGRAPHY: Use 'Cormorant Garamond' for authoritative titles and 'Geist' for dense policy text. For Arabic text, ensure an equivalent highly legible, professional font fallback is configured in the text components.",
+    "COMPARISON TABLE: The NESU vs Bitcoin table needs to be extremely clean. Do not use generic borders; use `divider` tokens and subtle background tints (`brandTertiary` for the NESU column) to create hierarchy.",
+    "PLEDGE FORM: This form captures non-monetary, symbolic pledges. NO payment inputs. The 'Certificate of Pledged Support' should look like an authoritative document (glass card overlaying a watermark text).",
+    "Use image_generation_tool (if available in your toolset) to generate the specific 'green globe-with-leaf emblem inside a gold laurel wreath' and the 'GOV·POWER·TRADE' hero background, using the provided images here as layout fallbacks."
+  ]
+}
