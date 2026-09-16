@@ -3,6 +3,7 @@ import { View } from "react-native";
 import Ionicons from "@react-native-vector-icons/ionicons";
 
 import { Screen } from "@/src/components/Screen";
+import { ShareCard } from "@/src/components/ShareCard";
 import { Txt } from "@/src/components/Txt";
 import { useLang } from "@/src/i18n";
 import { COMPARISON_ROWS, PRECEDENTS } from "@/src/i18n/content";
@@ -55,6 +56,10 @@ export default function ComparisonScreen() {
             ])}
           </View>
         ))}
+      </View>
+
+      <View style={styles.shareWrap}>
+        <ShareCard heading={t("share_heading")} testID="comparison-share-card" />
       </View>
 
       {/* precedents */}
@@ -115,6 +120,7 @@ const useStyles = makeStyles((colors) => ({
   rowBorder: { borderBottomWidth: 1, borderBottomColor: colors.divider },
   cell: { paddingVertical: spacing.md, paddingHorizontal: spacing.sm, justifyContent: "center" },
   cellHighlight: { backgroundColor: colors.brandTertiary },
+  shareWrap: { marginTop: spacing.xl },
   precTitle: { marginTop: spacing["2xl"] },
   prec: {
     flexDirection: "row",

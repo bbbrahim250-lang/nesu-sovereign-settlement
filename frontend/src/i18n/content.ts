@@ -302,6 +302,13 @@ const FR_PDF =
 const AR_PDF =
   "https://customer-assets-lxgj4vgw.emergentagent.net/job_d641b224-7fce-4fe7-836f-35d1b4bafe40/artifacts/80ga446e_NESU_Swiss_Counsel_Brief_AR.pdf";
 
+const DE_PDF =
+  "https://customer-assets-0z36b82j.emergentagent.net/job_nesu-settlement/artifacts/l345h4bs_NESU_Swiss_Counsel_Brief_DE.pdf";
+const ZH_PDF =
+  "https://customer-assets-0z36b82j.emergentagent.net/job_nesu-settlement/artifacts/pffzjql8_NESU_Swiss_Counsel_Brief_ZH.pdf";
+const RU_PDF =
+  "https://customer-assets-0z36b82j.emergentagent.net/job_nesu-settlement/artifacts/d02t8o7l_NESU_Swiss_Counsel_Brief_RU.pdf";
+
 export const DOCUMENTS: {
   key: string;
   kind: "proposal" | "brief";
@@ -313,9 +320,9 @@ export const DOCUMENTS: {
   { key: "brief_en", kind: "brief", langLabel: "English", url: EN_PDF, standin: false },
   { key: "brief_fr", kind: "brief", langLabel: "Français", url: FR_PDF, standin: false },
   { key: "brief_ar", kind: "brief", langLabel: "العربية", url: AR_PDF, standin: false },
-  { key: "brief_de", kind: "brief", langLabel: "Deutsch", url: EN_PDF, standin: true },
-  { key: "brief_zh", kind: "brief", langLabel: "中文", url: EN_PDF, standin: true },
-  { key: "brief_ru", kind: "brief", langLabel: "Русский", url: EN_PDF, standin: true },
+  { key: "brief_de", kind: "brief", langLabel: "Deutsch", url: DE_PDF, standin: false },
+  { key: "brief_zh", kind: "brief", langLabel: "中文", url: ZH_PDF, standin: false },
+  { key: "brief_ru", kind: "brief", langLabel: "Русский", url: RU_PDF, standin: false },
 ];
 
 export const GREEN_CORRIDORS_VIDEO =

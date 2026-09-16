@@ -1,29 +1,30 @@
 import React from "react";
 import { Pressable, View } from "react-native";
-import Ionicons from "@react-native-vector-icons/ionicons";
+import { Image } from "expo-image";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { makeStyles, radius, spacing, useTheme } from "@/src/theme";
 import { LANGS, useLang } from "@/src/i18n";
 import { Txt } from "./Txt";
 
+const EMBLEM = require("../../assets/images/emblem.png");
+
+/** Official NESU gold-laurel emblem (cropped from the brand artwork). */
 export function Logo({ size = 36 }: { size?: number }) {
   const { colors } = useTheme();
   return (
-    <View
+    <Image
+      source={EMBLEM}
+      accessibilityLabel="NESU emblem"
       style={{
         width: size,
         height: size,
         borderRadius: size / 2,
-        backgroundColor: colors.brandSecondary,
-        borderWidth: 1.5,
+        borderWidth: 1,
         borderColor: colors.brandPrimary,
-        alignItems: "center",
-        justifyContent: "center",
       }}
-    >
-      <Ionicons name="leaf" size={size * 0.5} color={colors.brandPrimary} />
-    </View>
+      contentFit="cover"
+    />
   );
 }
 

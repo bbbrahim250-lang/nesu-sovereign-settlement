@@ -7,6 +7,7 @@ import dayjs from "dayjs";
 
 import { Screen } from "@/src/components/Screen";
 import { Logo } from "@/src/components/Header";
+import { ShareCard } from "@/src/components/ShareCard";
 import { Txt } from "@/src/components/Txt";
 import { useToast } from "@/src/components/Toast";
 import { useLang } from "@/src/i18n";
@@ -357,6 +358,10 @@ function CertificateBlock({
           {t("cert_new")}
         </Txt>
       </Pressable>
+
+      <View style={styles.shareWrap}>
+        <ShareCard heading={t("share_after_cert")} testID="pledge-share-card" />
+      </View>
     </View>
   );
 }
@@ -503,6 +508,7 @@ const useStyles = makeStyles((colors) => ({
   secondaryBtn: { paddingVertical: spacing.md, alignItems: "center", marginTop: spacing.sm },
 
   certWrap: { gap: spacing.sm },
+  shareWrap: { marginTop: spacing.lg },
   cert: {
     backgroundColor: colors.surfaceSecondary,
     borderWidth: 1.5,

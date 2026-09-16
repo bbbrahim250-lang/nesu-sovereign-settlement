@@ -1,0 +1,28 @@
+{
+  "summary": "Frontend-only retest of the newly-added items (ShareCard on Comparison & Pledge, emblem image, DE/ZH/RU real PDFs). All items verified passing. Comparison ShareCard renders under table with heading 'Share the concept' (EN) / 'Partager le concept' (FR) / 'شارك المفهوم' (AR); button becomes enabled with 'Share summary card' / 'Partager la carte résumé' / 'مشاركة بطاقة الملخص' and clicking on web shows toast 'Summary card ready to share.' (and Arabic equivalent). AR share-card rows are mirrored (row-reverse detected in DOM). Pledge submission → certificate renders, and below 'Make another pledge' the pledge-share-card appears with heading 'Spread the concept' / 'انشر المفهوم' and its button triggers the same toast. Docs tab: rows doc-brief_de / doc-brief_zh / doc-brief_ru no longer carry the 'Preview copy' tag and are enabled with an 'Open' button; doc-proposal still shows the 'Preview copy' tag. All PDF URLs (EN/FR/AR/DE/ZH/RU) return HTTP 200 with content-type application/pdf. Header emblem image renders on every visited tab (Home has header+hero, Comparison/Pledge have header+card logo, Research has header) and no console errors mention missing emblem.png asset (0 total console errors captured across the full flow). Copy audit: share card contains 'Asset-backed settlement unit vs. speculative digital asset' subtitle, 5 rows (Primary purpose, Value backing, Volatility, Energy footprint, Cost of capital) and footer 'NESU Initiative — Digital-UNI AI Labs · Conceptual research; not an investment product' — no wallets, no buying, no crypto price values. NOTE: word 'payments' does appear inside the Bitcoin column of the 'Primary purpose' row ('Speculative store of value / open payments') — this is descriptive comparison text about Bitcoin (not promoting NESU as a payment product) and matches the on-screen Comparison table; flagged as a minor observation for the main agent to confirm intent.",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": []
+  },
+  "test_report_links": ["/app/test_reports/iteration_2.json"],
+  "action_items": [
+    "Confirm whether the word 'payments' inside the Bitcoin column of the ShareCard row 'Primary purpose' (\"Speculative store of value / open payments\") is acceptable — request said the share card must not mention payments/wallets/buying/crypto prices. It is descriptive of Bitcoin (not NESU) and identical to the on-screen Comparison table copy in i18n/content.ts. If it must be removed, edit COMPARISON_ROWS[0].bitcoin in /app/frontend/src/i18n/content.ts (EN/FR/AR).",
+    "Clean up 1 TEST pledge created during this run: name='TEST_Reviewer', institution='TEST_Institution', country='TEST_Country', email='test_reviewer@example.com', region='europe', tier=$100. Regional total 'europe' and grand total each increased by 1."
+  ],
+  "critical_code_review_comments": [
+    "ShareCard.tsx correctly gates capture behind onLayout + requestAnimationFrame (avoids blank captures), matches the pattern used for the certificate.",
+    "expo-sharing/expo-media-library are dynamically imported inside async handlers so the web bundle stays clean — good pattern.",
+    "COMPARISON_ROWS index picking (CARD_ROW_INDEXES = [0,2,3,4,5]) intentionally skips 'Who can transact' and 'Environmental penalty' to fit 5 rows on the share image; verify this is the intended subset.",
+    "Header Logo uses expo-image with require() of assets/images/emblem.png (459 KB) — file exists and loads without console errors."
+  ],
+  "updated_files": [],
+  "success_rate": { "backend": "not tested (per request)", "frontend": "100%" },
+  "seed_data_creation": "1 TEST pledge submitted (TEST_Reviewer / europe / $100).",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "All 6 items in the review request verified via mobile-viewport Playwright run against the public EXPO_PUBLIC_BACKEND_URL. PDF URLs verified with curl (all 200 / application/pdf). No console errors. Only open item is a copy question about the word 'payments' inside the Bitcoin comparison cell on the ShareCard.",
+  "rca_of_issue": "N/A — no bugs found."
+}

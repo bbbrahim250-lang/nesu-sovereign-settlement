@@ -108,6 +108,17 @@ export const STRINGS: Record<Lang, Dict> = {
     doc_brief: "Swiss Counsel Engagement Brief",
     doc_standin: "Preview copy",
 
+    // share card
+    share_title: "NESU vs. Bitcoin at a glance",
+    share_subtitle: "Asset-backed settlement unit vs. speculative digital asset",
+    share_heading: "Share the concept",
+    share_after_cert: "Spread the concept",
+    share_cta: "Share summary card",
+    share_preparing: "Preparing card…",
+    share_ready: "Summary card ready to share.",
+    share_unsupported: "Sharing the card image requires the built app (not Expo Go). The card is shown above.",
+    share_footer: "NESU Initiative — Digital-UNI AI Labs · Conceptual research; not an investment product",
+
     retry: "Retry",
     loading: "Loading…",
   },
@@ -202,6 +213,17 @@ export const STRINGS: Record<Lang, Dict> = {
     doc_brief: "Note d’Engagement du Conseil Suisse",
     doc_standin: "Copie de prévisualisation",
 
+    share_title: "NESU vs. Bitcoin en un coup d’œil",
+    share_subtitle: "Unité de règlement adossée à des actifs vs actif numérique spéculatif",
+    share_heading: "Partager le concept",
+    share_after_cert: "Diffuser le concept",
+    share_cta: "Partager la carte résumé",
+    share_preparing: "Préparation de la carte…",
+    share_ready: "Carte résumé prête à partager.",
+    share_unsupported:
+      "Le partage de l’image nécessite l’application compilée (pas Expo Go). La carte est affichée ci-dessus.",
+    share_footer: "Initiative NESU — Digital-UNI AI Labs · Recherche conceptuelle ; pas un produit d’investissement",
+
     retry: "Réessayer",
     loading: "Chargement…",
   },
@@ -295,6 +317,16 @@ export const STRINGS: Record<Lang, Dict> = {
     doc_proposal: "المقترح المفاهيمي لنيسو",
     doc_brief: "ملخص ارتباط المستشار السويسري",
     doc_standin: "نسخة معاينة",
+
+    share_title: "نيسو مقابل بيتكوين في لمحة",
+    share_subtitle: "وحدة تسوية مدعومة بالأصول مقابل أصل رقمي مضاربي",
+    share_heading: "شارك المفهوم",
+    share_after_cert: "انشر المفهوم",
+    share_cta: "مشاركة بطاقة الملخص",
+    share_preparing: "جارٍ تجهيز البطاقة…",
+    share_ready: "بطاقة الملخص جاهزة للمشاركة.",
+    share_unsupported: "تتطلب مشاركة صورة البطاقة التطبيق المُجمَّع (وليس Expo Go). البطاقة معروضة أعلاه.",
+    share_footer: "مبادرة نيسو — Digital-UNI AI Labs · بحث مفاهيمي؛ ليس منتجًا استثماريًا",
 
     retry: "إعادة المحاولة",
     loading: "جارٍ التحميل…",

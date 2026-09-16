@@ -45,12 +45,19 @@ EN/FR/ع switcher and a footer disclaimer appear on every screen.
 - Research: 7 document rows (EN/FR/AR real PDFs; Proposal/DE/ZH/RU as marked stand-ins).
 - Backend pledges API (13/13 backend tests passing); NESU-branded placeholder icons.
 
+## Implemented (2026-09-16, iteration 2)
+- Docs: real DE/ZH/RU Swiss Counsel briefs wired (only the Conceptual Proposal remains a marked stand-in).
+- Share Card: `src/components/ShareCard.tsx` — one-tap shareable NESU-vs-Bitcoin summary image
+  (view-shot + expo-sharing) on the Comparison tab and after the pledge certificate. Trilingual, RTL-mirrored.
+- Branding: full-bleed splash (`assets/images/splash.png`, resizeMode "cover", `enableFullScreenImage_legacy`),
+  interim app icon / adaptive icon / favicon cropped from the official splash artwork, and the in-app `Logo`
+  now renders the real gold-laurel emblem (`assets/images/emblem.png`).
+- Pledge totals reset to zero after testing (iteration_2: all frontend checks pass).
+
 ## Backlog / Remaining
-- **P1:** Wire the real Conceptual Proposal + German/Chinese/Russian PDFs when attached
-  (currently marked stand-ins reusing the EN brief).
-- **P1:** Replace placeholder app/splash/adaptive icons with official NESU logo art.
+- **P1:** Swap interim icon for the official `nesu_app_icon_v2_1024.png` when the upload arrives.
+- **P1:** Wire the real Conceptual Proposal PDF when attached.
 - **P2:** Corridor detail pages with GCRS score.
-- **P2:** Shareable NESU-vs-Bitcoin summary card image.
 
 ## Native-build notes
 - Inline video autoplay and the certificate image save/share are best validated on a
