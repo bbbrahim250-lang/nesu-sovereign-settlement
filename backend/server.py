@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, BackgroundTasks, HTTPException
+from fastapi import FastAPI, APIRouter, BackgroundTasks, Header, HTTPException
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -37,6 +37,8 @@ TIERS = {
     "diamond": 1_000_000_000,
     "platinum": 10_000_000_000,
 }
+STATUSES = ["pending_review", "in_review", "approved", "declined"]
+ADMIN_KEY = os.environ.get("ADMIN_KEY", "")
 
 
 # ---------------------------------------------------------------------------
@@ -76,6 +78,20 @@ class Certificate(BaseModel):
     amount_usd: int
     status: str
     date: str
+
+
+class StatusUpdate(BaseModel):
+    status: str
+
+
+class RequestStatus(BaseModel):
+    id: str
+    institution: str
+    tier: str
+    region: str
+    status: str
+    date: str
+    updated_at: Optional[str] = None
 
 
 class Totals(BaseModel):
@@ -131,6 +147,44 @@ async def create_membership(payload: MembershipCreate, background: BackgroundTas
         status=membership.status,
         date=membership.created_at,
     )
+
+
+@api_router.get("/memberships/{request_id}/status", response_model=RequestStatus)
+async def get_request_status(request_id: str):
+    """Public tracker: applicants look up their request by the ID on their certificate.
+    Returns no personal contact details."""
+    doc = await db.memberships.find_one(
+        {"id": request_id.strip().lower(), "deleted_at": None},
+        {"_id": 0, "id": 1, "institution": 1, "tier": 1, "region": 1, "status": 1, "created_at": 1, "updated_at": 1},
+    )
+    if not doc:
+        raise HTTPException(status_code=404, detail="Request not found")
+    return RequestStatus(
+        id=doc["id"],
+        institution=doc["institution"],
+        tier=doc["tier"],
+        region=doc["region"],
+        status=doc["status"],
+        date=doc["created_at"],
+        updated_at=doc.get("updated_at"),
+    )
+
+
+@api_router.patch("/memberships/{request_id}/status", response_model=RequestStatus)
+async def update_request_status(request_id: str, payload: StatusUpdate, x_admin_key: str = Header(default="")):
+    """Team-only: move a request between pending_review / in_review / approved / declined."""
+    if not ADMIN_KEY or x_admin_key != ADMIN_KEY:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    if payload.status not in STATUSES:
+        raise HTTPException(status_code=422, detail="Invalid status")
+    now = datetime.now(timezone.utc).isoformat()
+    res = await db.memberships.update_one(
+        {"id": request_id.strip().lower(), "deleted_at": None},
+        {"$set": {"status": payload.status, "updated_at": now}},
+    )
+    if res.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Request not found")
+    return await get_request_status(request_id)
 
 
 app.include_router(api_router)

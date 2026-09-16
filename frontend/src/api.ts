@@ -41,3 +41,20 @@ export async function submitMembership(input: MembershipInput): Promise<Certific
   if (!res.ok) throw new Error(`membership ${res.status}`);
   return res.json();
 }
+
+export type RequestStatus = {
+  id: string;
+  institution: string;
+  tier: string;
+  region: string;
+  status: "pending_review" | "in_review" | "approved" | "declined";
+  date: string;
+  updated_at: string | null;
+};
+
+export async function fetchRequestStatus(id: string): Promise<RequestStatus | null> {
+  const res = await fetch(`${BASE}/api/memberships/${encodeURIComponent(id.trim())}/status`);
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error(`status ${res.status}`);
+  return res.json();
+}

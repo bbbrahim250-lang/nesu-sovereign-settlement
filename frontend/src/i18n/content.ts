@@ -284,7 +284,19 @@ export type MembershipTier = {
   accent: string;
   /** Deep card body tint behind the accent. */
   body: string;
+  /** What the tier unlocks — shown when the card is tapped. */
+  benefits: LocalizedText[];
 };
+
+const ALL_PREVIOUS = (tier: LocalizedText): LocalizedText => ({
+  en: `Everything in ${tier.en}`,
+  fr: `Tous les avantages ${tier.fr}`,
+  ar: `جميع مزايا الفئة ${tier.ar}`,
+});
+const T_BRONZE = { en: "Bronze", fr: "Bronze", ar: "البرونزية" };
+const T_SILVER = { en: "Silver", fr: "Argent", ar: "الفضية" };
+const T_GOLD = { en: "Gold", fr: "Or", ar: "الذهبية" };
+const T_DIAMOND = { en: "Diamond", fr: "Diamant", ar: "الماسية" };
 
 export const MEMBERSHIP_TIERS: MembershipTier[] = [
   {
@@ -294,6 +306,12 @@ export const MEMBERSHIP_TIERS: MembershipTier[] = [
     tagline: { en: "Access · Network · Opportunities", fr: "Accès · Réseau · Opportunités", ar: "وصول · شبكة · فرص" },
     accent: "#C67C4E",
     body: "#3A1F12",
+    benefits: [
+      { en: "Observer seat at NESU governance briefings", fr: "Siège d’observateur aux briefings de gouvernance NESU", ar: "مقعد مراقب في إحاطات حوكمة نيسو" },
+      { en: "Full access to the research library and counsel briefs", fr: "Accès complet à la bibliothèque de recherche et aux notes de conseil", ar: "وصول كامل إلى مكتبة البحوث وملخصات المستشارين" },
+      { en: "Listing in the member network directory", fr: "Inscription à l’annuaire du réseau des membres", ar: "إدراج في دليل شبكة الأعضاء" },
+      { en: "Quarterly Green Corridor update calls", fr: "Points trimestriels sur les Corridors Verts", ar: "اجتماعات فصلية لمتابعة الممرات الخضراء" },
+    ],
   },
   {
     key: "silver",
@@ -302,6 +320,12 @@ export const MEMBERSHIP_TIERS: MembershipTier[] = [
     tagline: { en: "Expand · Collaborate · Invest", fr: "Développer · Collaborer · Investir", ar: "توسّع · تعاون · استثمار" },
     accent: "#C9CDD3",
     body: "#2A2E35",
+    benefits: [
+      ALL_PREVIOUS(T_BRONZE),
+      { en: "Working-group participation on one Green Corridor", fr: "Participation à un groupe de travail sur un Corridor Vert", ar: "المشاركة في مجموعة عمل لأحد الممرات الخضراء" },
+      { en: "Bilateral introductions within the member network", fr: "Mises en relation bilatérales au sein du réseau des membres", ar: "تعارف ثنائي داخل شبكة الأعضاء" },
+      { en: "Co-authoring opportunities on NESU policy notes", fr: "Co-rédaction de notes de politique NESU", ar: "فرص المشاركة في تأليف مذكرات سياسات نيسو" },
+    ],
   },
   {
     key: "gold",
@@ -310,6 +334,12 @@ export const MEMBERSHIP_TIERS: MembershipTier[] = [
     tagline: { en: "Lead · Build · Transform", fr: "Diriger · Bâtir · Transformer", ar: "قيادة · بناء · تحوّل" },
     accent: "#D4AF37",
     body: "#3A2E0F",
+    benefits: [
+      ALL_PREVIOUS(T_SILVER),
+      { en: "Voting seat on a corridor steering committee", fr: "Siège votant au comité de pilotage d’un corridor", ar: "مقعد تصويتي في لجنة توجيه أحد الممرات" },
+      { en: "Priority participation in pilot settlement studies", fr: "Participation prioritaire aux études pilotes de règlement", ar: "أولوية المشاركة في دراسات التسوية التجريبية" },
+      { en: "Named recognition in NESU publications", fr: "Reconnaissance nominative dans les publications NESU", ar: "تقدير بالاسم في منشورات نيسو" },
+    ],
   },
   {
     key: "diamond",
@@ -322,6 +352,12 @@ export const MEMBERSHIP_TIERS: MembershipTier[] = [
     },
     accent: "#5FB2F0",
     body: "#0E2A44",
+    benefits: [
+      ALL_PREVIOUS(T_GOLD),
+      { en: "Seat on the NESU Governance Council", fr: "Siège au Conseil de Gouvernance NESU", ar: "مقعد في مجلس حوكمة نيسو" },
+      { en: "Strategic partnership agreement with Digital-UNI AI Labs", fr: "Accord de partenariat stratégique avec Digital-UNI AI Labs", ar: "اتفاقية شراكة استراتيجية مع Digital-UNI AI Labs" },
+      { en: "Lead role in one Roadmap corridor", fr: "Rôle de chef de file sur un corridor de la feuille de route", ar: "دور قيادي في أحد ممرات خارطة الطريق" },
+    ],
   },
   {
     key: "platinum",
@@ -334,6 +370,12 @@ export const MEMBERSHIP_TIERS: MembershipTier[] = [
     },
     accent: "#E8E6F0",
     body: "#2B2A3C",
+    benefits: [
+      ALL_PREVIOUS(T_DIAMOND),
+      { en: "Founding-member status with a permanent Council seat", fr: "Statut de membre fondateur avec siège permanent au Conseil", ar: "صفة عضو مؤسس مع مقعد دائم في المجلس" },
+      { en: "Co-design of the gold & commodity reserve-basket framework", fr: "Co-conception du cadre du panier de réserves or et matières premières", ar: "المشاركة في تصميم إطار سلة احتياطي الذهب والسلع" },
+      { en: "Host institution for a NESU corridor summit", fr: "Institution hôte d’un sommet des corridors NESU", ar: "المؤسسة المضيفة لقمة ممرات نيسو" },
+    ],
   },
 ];
 
@@ -371,6 +413,9 @@ const ZH_PDF =
 const RU_PDF =
   "https://customer-assets-0z36b82j.emergentagent.net/job_nesu-settlement/artifacts/d02t8o7l_NESU_Swiss_Counsel_Brief_RU.pdf";
 
+const PROPOSAL_PDF =
+  "https://customer-assets-0z36b82j.emergentagent.net/job_nesu-settlement/artifacts/tzweuyc1_NESU_Conceptual_Proposal_Combined_v2.pdf";
+
 export const DOCUMENTS: {
   key: string;
   kind: "proposal" | "brief";
@@ -378,7 +423,7 @@ export const DOCUMENTS: {
   url: string | null;
   standin: boolean;
 }[] = [
-  { key: "proposal", kind: "proposal", langLabel: "EN", url: EN_PDF, standin: true },
+  { key: "proposal", kind: "proposal", langLabel: "EN", url: PROPOSAL_PDF, standin: false },
   { key: "brief_en", kind: "brief", langLabel: "English", url: EN_PDF, standin: false },
   { key: "brief_fr", kind: "brief", langLabel: "Français", url: FR_PDF, standin: false },
   { key: "brief_ar", kind: "brief", langLabel: "العربية", url: AR_PDF, standin: false },

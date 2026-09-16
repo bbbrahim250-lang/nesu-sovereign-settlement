@@ -7,7 +7,9 @@ import dayjs from "dayjs";
 
 import { Screen } from "@/src/components/Screen";
 import { Logo } from "@/src/components/Header";
+import { RequestTracker } from "@/src/components/RequestTracker";
 import { ShareCard } from "@/src/components/ShareCard";
+import { TierBenefits, TierCompareModal } from "@/src/components/TierBenefits";
 import { Txt } from "@/src/components/Txt";
 import { useToast } from "@/src/components/Toast";
 import { useLang } from "@/src/i18n";
@@ -33,6 +35,7 @@ export default function MembershipScreen() {
   const [message, setMessage] = useState("");
   const [tierKey, setTierKey] = useState<string>(MEMBERSHIP_TIERS[0].key);
   const [region, setRegion] = useState<string | null>(null);
+  const [compareOpen, setCompareOpen] = useState(false);
 
   const [certificate, setCertificate] = useState<Certificate | null>(null);
   const [certReady, setCertReady] = useState(false);
@@ -198,6 +201,25 @@ export default function MembershipScreen() {
                 · {tc(selectedTier.amount)}
               </Txt>
             </View>
+
+            {/* What the tapped tier unlocks */}
+            <View style={[styles.benefitsPanel, { borderColor: selectedTier.accent }]} testID="tier-benefits">
+              <Txt size={11} weight="700" color={selectedTier.accent} style={styles.benefitsTitle}>
+                {t("mem_benefits_title").toUpperCase()}
+              </Txt>
+              <TierBenefits tier={selectedTier} />
+              <Pressable
+                testID="compare-tiers"
+                onPress={() => setCompareOpen(true)}
+                style={[styles.compareLink, isRTL && styles.rowRTL]}
+                accessibilityRole="button"
+              >
+                <Ionicons name="git-compare" size={14} color={colors.brandPrimary} />
+                <Txt size={13} weight="700" color={colors.brandPrimary}>
+                  {t("mem_compare_all")}
+                </Txt>
+              </Pressable>
+            </View>
           </Field>
 
           <Field label={t("mem_name")}>
@@ -273,6 +295,17 @@ export default function MembershipScreen() {
           </Pressable>
         </View>
       )}
+
+      <View style={styles.trackerWrap}>
+        <RequestTracker initialId={certificate?.id ?? ""} key={certificate?.id ?? "blank"} />
+      </View>
+
+      <TierCompareModal
+        visible={compareOpen}
+        selectedKey={tierKey}
+        onSelect={setTierKey}
+        onClose={() => setCompareOpen(false)}
+      />
     </Screen>
   );
 }
@@ -417,6 +450,9 @@ function CertificateBlock({
           </Txt>
           <Txt size={10} align="center" color={colors.muted} style={styles.certId}>
             ID · {certificate.id}
+          </Txt>
+          <Txt size={10} align="center" color={colors.brandPrimary} style={styles.certId}>
+            {t("track_keep_id")}
           </Txt>
         </View>
       </ViewShot>
@@ -577,6 +613,17 @@ const useStyles = makeStyles((colors) => ({
   cardBottom: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   selectedRow: { flexDirection: "row", alignItems: "center", gap: spacing.sm, marginTop: spacing.sm },
   dot: { width: 10, height: 10, borderRadius: 5 },
+  benefitsPanel: {
+    marginTop: spacing.sm,
+    borderWidth: 1,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    gap: spacing.sm,
+    backgroundColor: colors.surfaceSecondary,
+  },
+  benefitsTitle: { letterSpacing: 1 },
+  compareLink: { flexDirection: "row", alignItems: "center", gap: 6, minHeight: 36, marginTop: 2 },
+  trackerWrap: { marginTop: spacing["2xl"] },
 
   pillWrap: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
   regionPill: {

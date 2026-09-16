@@ -72,9 +72,19 @@ EN/FR/ع switcher and a footer disclaimer appear on every screen.
   `TEAM_EMAIL=institutional@nesu-sovereign-settlement.ch` (also Reply-To). `EMAIL_FROM_NAME=NESU`.
   Server-side templates only; guardrail gate applied on every send. Verified 202 Accepted for both sends.
 
+## Implemented (iteration 5) — Tracker, tier benefits, real Proposal PDF
+- Request Tracker (`src/components/RequestTracker.tsx`): applicants enter the request ID from their
+  certificate → `GET /api/memberships/{id}/status` (no personal data returned) → status pill
+  pending_review / in_review / approved / declined with description, tier, institution, dates.
+- Team status updates: `PATCH /api/memberships/{id}/status` with header `X-Admin-Key` (= `ADMIN_KEY` in
+  backend/.env, copy in memory/test_credentials.md), body `{"status": "in_review"|"approved"|"declined"|"pending_review"}`.
+- Tier benefits: tapping a card shows "What this tier unlocks" (4 bullets per tier, EN/FR/AR) +
+  "Compare all tiers" full-screen modal with select buttons (`src/components/TierBenefits.tsx`).
+- Docs: real NESU Conceptual Proposal (Combined v2) wired — no stand-ins remain.
+- Counter reset to zero.
+
 ## Backlog / Remaining
 - **P1:** Swap interim icon for the official `nesu_app_icon_v2_1024.png` when the upload arrives.
-- **P1:** Wire the real Conceptual Proposal PDF when attached.
 - **P2:** Corridor detail pages with GCRS score.
 
 ## Native-build notes
