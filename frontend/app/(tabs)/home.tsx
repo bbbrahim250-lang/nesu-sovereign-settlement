@@ -5,11 +5,11 @@ import { LinearGradient } from "expo-linear-gradient";
 import Ionicons from "@react-native-vector-icons/ionicons";
 
 import { Screen } from "@/src/components/Screen";
-import { Logo } from "@/src/components/Header";
 import { Txt } from "@/src/components/Txt";
 import { useLang } from "@/src/i18n";
-import { HERO_MAP_IMAGE } from "@/src/i18n/content";
 import { makeStyles, radius, spacing, useTheme } from "@/src/theme";
+
+const HERO_ART = require("../../assets/images/hero.jpg");
 
 export default function HomeScreen() {
   const styles = useStyles();
@@ -21,19 +21,16 @@ export default function HomeScreen() {
 
   return (
     <Screen testID="home-screen" contentStyle={{ padding: 0 }}>
-      {/* Hero */}
+      {/* Hero — official NESU brand artwork */}
       <View style={styles.hero}>
-        <Image source={{ uri: HERO_MAP_IMAGE }} style={styles.heroImg} contentFit="cover" transition={300} />
+        <Image source={HERO_ART} style={styles.heroImg} contentFit="cover" contentPosition="top" transition={300} />
         <LinearGradient
-          colors={["rgba(5,10,16,0.35)", "rgba(5,10,16,0.95)"]}
+          colors={["rgba(5,10,16,0)", "rgba(5,10,16,0.55)", "rgba(5,10,16,1)"]}
+          locations={[0, 0.6, 1]}
           style={styles.heroOverlay}
         />
         <View style={styles.heroContent}>
-          <Logo size={56} />
-          <Txt variant="display" size={44} weight="700" align="center" color={colors.brandPrimary} style={styles.heroTitle}>
-            {t("appName")}
-          </Txt>
-          <Txt size={15} weight="600" align="center" color={colors.onSurface}>
+          <Txt size={16} weight="700" align="center" color={colors.brandPrimary}>
             {t("tagline")}
           </Txt>
           <Txt size={12} align="center" color={colors.muted} style={styles.heroInit}>
@@ -94,12 +91,11 @@ function Row({ icon, color, text, isRTL }: { icon: string; color: string; text: 
 }
 
 const useStyles = makeStyles((colors) => ({
-  hero: { height: 260, justifyContent: "flex-end" },
+  hero: { aspectRatio: 720 / 857, maxHeight: 520, width: "100%", justifyContent: "flex-end" },
   heroImg: { ...StyleSheet.absoluteFillObject },
   heroOverlay: { ...StyleSheet.absoluteFillObject },
-  heroContent: { alignItems: "center", padding: spacing.xl, gap: 4 },
-  heroTitle: { lineHeight: 48, letterSpacing: 1 },
-  heroInit: { marginTop: spacing.xs },
+  heroContent: { alignItems: "center", paddingHorizontal: spacing.xl, paddingBottom: spacing.md, gap: 2 },
+  heroInit: { marginTop: 2 },
   body: { padding: spacing.lg, gap: spacing.lg },
   card: {
     backgroundColor: colors.surfaceSecondary,

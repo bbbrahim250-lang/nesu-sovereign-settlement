@@ -273,7 +273,69 @@ export const PRECEDENTS: { name: string; desc: LocalizedText }[] = [
   },
 ];
 
-export const TIERS = [100, 1000, 10000, 100000, 1000000];
+// Membership tiers — mirrors the NESU GOV · POWER · TRADE · CARD artwork.
+// Fees are settled off-app under a signed agreement; the app records the request.
+export type MembershipTier = {
+  key: string;
+  name: LocalizedText;
+  amount: LocalizedText;
+  tagline: LocalizedText;
+  /** Card metal/gem colour — brand constant, identical in every theme. */
+  accent: string;
+  /** Deep card body tint behind the accent. */
+  body: string;
+};
+
+export const MEMBERSHIP_TIERS: MembershipTier[] = [
+  {
+    key: "bronze",
+    name: { en: "Bronze", fr: "Bronze", ar: "برونزية" },
+    amount: { en: "$50 Million", fr: "50 millions $", ar: "50 مليون دولار" },
+    tagline: { en: "Access · Network · Opportunities", fr: "Accès · Réseau · Opportunités", ar: "وصول · شبكة · فرص" },
+    accent: "#C67C4E",
+    body: "#3A1F12",
+  },
+  {
+    key: "silver",
+    name: { en: "Silver", fr: "Argent", ar: "فضية" },
+    amount: { en: "$250 Million", fr: "250 millions $", ar: "250 مليون دولار" },
+    tagline: { en: "Expand · Collaborate · Invest", fr: "Développer · Collaborer · Investir", ar: "توسّع · تعاون · استثمار" },
+    accent: "#C9CDD3",
+    body: "#2A2E35",
+  },
+  {
+    key: "gold",
+    name: { en: "Gold", fr: "Or", ar: "ذهبية" },
+    amount: { en: "$500 Million", fr: "500 millions $", ar: "500 مليون دولار" },
+    tagline: { en: "Lead · Build · Transform", fr: "Diriger · Bâtir · Transformer", ar: "قيادة · بناء · تحوّل" },
+    accent: "#D4AF37",
+    body: "#3A2E0F",
+  },
+  {
+    key: "diamond",
+    name: { en: "Diamond", fr: "Diamant", ar: "ماسية" },
+    amount: { en: "$1 Billion", fr: "1 milliard $", ar: "مليار دولار" },
+    tagline: {
+      en: "Global Impact · Strategic Partnerships",
+      fr: "Impact mondial · Partenariats stratégiques",
+      ar: "أثر عالمي · شراكات استراتيجية",
+    },
+    accent: "#5FB2F0",
+    body: "#0E2A44",
+  },
+  {
+    key: "platinum",
+    name: { en: "Platinum", fr: "Platine", ar: "بلاتينية" },
+    amount: { en: "$10 Billion", fr: "10 milliards $", ar: "10 مليارات دولار" },
+    tagline: {
+      en: "Shape the Future · A Lasting Legacy",
+      fr: "Façonner l’avenir · Un héritage durable",
+      ar: "صياغة المستقبل · إرث دائم",
+    },
+    accent: "#E8E6F0",
+    body: "#2B2A3C",
+  },
+];
 
 export const REGIONS: { key: string; label: LocalizedText }[] = [
   { key: "europe", label: { en: "Europe", fr: "Europe", ar: "أوروبا" } },
@@ -327,6 +389,3 @@ export const DOCUMENTS: {
 
 export const GREEN_CORRIDORS_VIDEO =
   "https://customer-assets-lxgj4vgw.emergentagent.net/job_d641b224-7fce-4fe7-836f-35d1b4bafe40/artifacts/g9lf2fes_nesu-green-corridors.mp4";
-
-export const HERO_MAP_IMAGE =
-  "https://images.unsplash.com/photo-1684610529682-553625a1ffed?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA3MDB8MHwxfHNlYXJjaHwxfHxkYXJrJTIwd29ybGQlMjBtYXAlMjBnbG93aW5nJTIwbm9kZXMlMjBuZXR3b3JrfGVufDB8fHx8MTc4OTU4MTQ1MHww&ixlib=rb-4.1.0&q=85";

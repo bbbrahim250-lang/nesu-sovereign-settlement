@@ -5,13 +5,13 @@ export type Totals = {
   by_region: Record<string, number>;
 };
 
-export type PledgeInput = {
+export type MembershipInput = {
   name: string;
   institution: string;
   country: string;
   email: string;
   message?: string;
-  tier: number;
+  tier: string;
   region: string;
 };
 
@@ -20,22 +20,24 @@ export type Certificate = {
   name: string;
   institution: string;
   region: string;
-  tier: number;
+  tier: string;
+  amount_usd: number;
+  status: string;
   date: string;
 };
 
 export async function fetchTotals(): Promise<Totals> {
-  const res = await fetch(`${BASE}/api/pledges/totals`);
+  const res = await fetch(`${BASE}/api/memberships/totals`);
   if (!res.ok) throw new Error(`totals ${res.status}`);
   return res.json();
 }
 
-export async function submitPledge(input: PledgeInput): Promise<Certificate> {
-  const res = await fetch(`${BASE}/api/pledges`, {
+export async function submitMembership(input: MembershipInput): Promise<Certificate> {
+  const res = await fetch(`${BASE}/api/memberships`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
   });
-  if (!res.ok) throw new Error(`pledge ${res.status}`);
+  if (!res.ok) throw new Error(`membership ${res.status}`);
   return res.json();
 }

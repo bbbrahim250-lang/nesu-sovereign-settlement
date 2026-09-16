@@ -11,7 +11,7 @@ const TABS: TabDef[] = [
   { name: "how-it-works", labelKey: "tab_how", icon: "layers" },
   { name: "corridors", labelKey: "tab_corridors", icon: "git-network" },
   { name: "comparison", labelKey: "tab_comparison", icon: "stats-chart" },
-  { name: "pledge", labelKey: "tab_pledge", icon: "ribbon" },
+  { name: "membership", labelKey: "tab_membership", icon: "card" },
   { name: "research", labelKey: "tab_research", icon: "document-text" },
 ];
 

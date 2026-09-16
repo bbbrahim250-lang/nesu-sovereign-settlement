@@ -54,6 +54,18 @@ EN/FR/ع switcher and a footer disclaimer appear on every screen.
   now renders the real gold-laurel emblem (`assets/images/emblem.png`).
 - Pledge totals reset to zero after testing (iteration_2: all frontend checks pass).
 
+## Implemented (2026-09-16, iteration 3) — Pledge → Membership
+- The symbolic "Pledge of Support" tab was replaced by a real **Membership** tab (`app/(tabs)/membership.tsx`):
+  5 tier cards (Bronze $50M · Silver $250M · Gold $500M · Diamond $1B · Platinum $10B) modelled on the
+  GOV · POWER · TRADE · CARD artwork, same form fields, button "Request Membership" (no payment processed
+  in-app; fees settled by wire under a signed agreement). Result: "Certificate of Membership Request"
+  (status pending review) + save/share + share card. Live shared "Membership requests" counter by region.
+- Backend: `GET /api/memberships/totals`, `POST /api/memberships` (tier key + amount_usd, status
+  pending_review); `/api/pledges` removed. Collection `memberships`. 15/15 backend tests pass.
+- All "pledge/symbolic" copy removed in EN/FR/AR; footer disclaimer updated.
+- Home hero now shows the official NESU brand artwork (`assets/images/hero.jpg`).
+- Counter reset to zero after testing.
+
 ## Backlog / Remaining
 - **P1:** Swap interim icon for the official `nesu_app_icon_v2_1024.png` when the upload arrives.
 - **P1:** Wire the real Conceptual Proposal PDF when attached.

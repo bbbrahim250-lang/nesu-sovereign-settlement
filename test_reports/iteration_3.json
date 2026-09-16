@@ -1,0 +1,35 @@
+{
+  "summary": "Full backend + frontend testing of the new Membership feature (replacing Pledge of Support). Backend: 15/15 pytest cases passed against public URL — /api/memberships/totals returns {total, by_region{europe,united_states,algeria,middle_east_gulf,brics,africa}}; POST /api/memberships works for all 5 tiers with correct amount_usd (50M/250M/500M/1B/10B), status 'pending_review', proper Certificate shape; invalid tier string ('gold2'), numeric tier (1), invalid region ('mars'), invalid email, and missing fields all return 422; totals increment per region after POST; old /api/pledges GET, /api/pledges/totals, and POST /api/pledges all return 404. Frontend (390x844): tab bar shows 'Membership' (FR 'Adhésion', AR 'العضوية'), no 'pledge/symbolic/No Funds Exchanged' anywhere in EN/FR/AR page text; /membership shows counter card, horizontal tier cards testID tier-bronze..tier-platinum, tapping a card updates selected-tier ('Gold Membership · $500 Million'); submit-membership disabled until required fields set; success shows certificate with title 'Certificate of Membership Request' (FR 'Certificat de Demande d'Adhésion'), tier badge, amount, region, date, status 'Pending review — subject to a signed agreement', watermark 'Membership Request — Pending Review'; save-certificate + new-membership + membership-share-card all render; reset clears form. AR path: document dir=rtl, tier cards rendered in reversed order (platinum first in the horizontal scroll), submit button label 'طلب العضوية'. Home hero renders the official NESU brand artwork (assets/images/hero.jpg, 720x857 naturally loaded, no broken image) with 'NUR Energy Settlement Unit' tagline and 'Digital-UNI AI Labs' initiative line beneath it. Footer contains the new disclaimer sentence 'Membership requests are subject to review and a signed agreement; no funds are collected in this app.' No console errors (only harmless warnings — useNativeDriver on web, and one pointerEvents-prop deprecation).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": [
+      {"component": "membership.tsx watermark View", "issue": "Uses deprecated `pointerEvents` prop instead of `style.pointerEvents`. Console warning 'props.pointerEvents is deprecated. Use style.pointerEvents'. Reference: /app/frontend/app/(tabs)/membership.tsx:375"}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_nesu_memberships.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "OPTIONAL cleanup — move `pointerEvents=\"none\"` on the watermark View into its style prop (styles.watermark) in /app/frontend/app/(tabs)/membership.tsx line 375 to silence the RN Web deprecation warning.",
+    "RESET SHARED COUNTER — this test run inserted 8 TEST_* membership records (all under region 'europe' except 1 under 'africa'): 6 via backend pytest (bronze/silver/gold/diamond/platinum in europe + 1 bronze in africa) and 2 via UI (1 EN gold in europe, 1 FR silver in europe). Main agent should clear the `memberships` collection (or delete TEST_* prefixed rows) so the /membership counter reads 0 again."
+  ],
+  "critical_code_review_comments": [
+    "server.py is clean, small (150 lines), uses Pydantic validation, EmailStr, excludes _id in totals query, uses env vars for MONGO_URL/DB_NAME, and correctly returns 422 for invalid tier/region/email.",
+    "membership.tsx correctly gates save-certificate on onLayout (certReady) to avoid capturing a zero-size image, and dynamically imports expo-media-library/expo-sharing so web bundle stays clean.",
+    "Frontend api.ts uses process.env.EXPO_PUBLIC_BACKEND_URL as required.",
+    "All interactive elements carry testID (tier-*, region-*, submit-membership, certificate, save-certificate, new-membership, membership-share-card, input-*)."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_nesu_memberships.py (created)",
+    "/app/backend/tests/test_nesu_pledges.py (deleted — superseded)"
+  ],
+  "success_rate": {"backend": "100% (15/15)", "frontend": "100% of tested flows"},
+  "seed_data_creation": "Created 8 TEST_* membership records via automated tests. 7 in region 'europe' (bronze/silver/gold/diamond/platinum + EN gold + FR silver), 1 in region 'africa' (bronze). Main agent should reset the memberships collection before hand-off.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Membership feature fully validated on both backend (pytest suite at /app/backend/tests/test_nesu_memberships.py) and mobile web (390x844). If retest is needed, first clear MongoDB `memberships` collection so counter starts at 0, then rerun test_nesu_memberships.py. Trilingual copy audit confirmed no 'pledge/symbolic/Pledge of Support/No Funds Exchanged' remnants in EN/FR/AR. Only cosmetic issue: one deprecated `pointerEvents` prop on the certificate watermark View."
+}

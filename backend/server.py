@@ -23,34 +23,44 @@ app = FastAPI()
 api_router = APIRouter(prefix="/api")
 
 # ---------------------------------------------------------------------------
-# Domain constants — canonical region keys and symbolic pledge tiers.
+# Domain constants — canonical region keys and membership tiers (USD).
+# Fees are settled off-app (wire transfer under a signed agreement); the app
+# only records the membership request.
 # ---------------------------------------------------------------------------
 REGIONS = ["europe", "united_states", "algeria", "middle_east_gulf", "brics", "africa"]
-TIERS = [100, 1000, 10000, 100000, 1000000]
+TIERS = {
+    "bronze": 50_000_000,
+    "silver": 250_000_000,
+    "gold": 500_000_000,
+    "diamond": 1_000_000_000,
+    "platinum": 10_000_000_000,
+}
 
 
 # ---------------------------------------------------------------------------
 # Models
 # ---------------------------------------------------------------------------
-class PledgeCreate(BaseModel):
+class MembershipCreate(BaseModel):
     name: str = Field(min_length=1, max_length=200)
     institution: str = Field(min_length=1, max_length=200)
     country: str = Field(min_length=1, max_length=200)
     email: EmailStr
     message: Optional[str] = Field(default=None, max_length=1000)
-    tier: int
+    tier: str
     region: str
 
 
-class Pledge(BaseModel):
+class Membership(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     name: str
     institution: str
     country: str
     email: str
     message: Optional[str] = None
-    tier: int
+    tier: str
+    amount_usd: int
     region: str
+    status: str = "pending_review"
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     deleted_at: Optional[str] = None
 
@@ -60,7 +70,9 @@ class Certificate(BaseModel):
     name: str
     institution: str
     region: str
-    tier: int
+    tier: str
+    amount_usd: int
+    status: str
     date: str
 
 
@@ -74,43 +86,45 @@ async def root():
     return {"message": "NESU API"}
 
 
-@api_router.get("/pledges/totals", response_model=Totals)
+@api_router.get("/memberships/totals", response_model=Totals)
 async def get_totals():
     by_region = {r: 0 for r in REGIONS}
     total = 0
-    cursor = db.pledges.find({"deleted_at": None})
+    cursor = db.memberships.find({"deleted_at": None}, {"_id": 0, "region": 1})
     async for doc in cursor:
-        pledge = Pledge(**{k: v for k, v in doc.items() if k != "_id"})
-        if pledge.region in by_region:
-            by_region[pledge.region] += 1
+        if doc.get("region") in by_region:
+            by_region[doc["region"]] += 1
         total += 1
     return Totals(total=total, by_region=by_region)
 
 
-@api_router.post("/pledges", response_model=Certificate)
-async def create_pledge(payload: PledgeCreate):
+@api_router.post("/memberships", response_model=Certificate)
+async def create_membership(payload: MembershipCreate):
     if payload.region not in REGIONS:
         raise HTTPException(status_code=422, detail="Invalid region")
     if payload.tier not in TIERS:
         raise HTTPException(status_code=422, detail="Invalid tier")
 
-    pledge = Pledge(
+    membership = Membership(
         name=payload.name.strip(),
         institution=payload.institution.strip(),
         country=payload.country.strip(),
         email=str(payload.email),
         message=(payload.message.strip() if payload.message else None),
         tier=payload.tier,
+        amount_usd=TIERS[payload.tier],
         region=payload.region,
     )
-    await db.pledges.insert_one(pledge.model_dump())
+    await db.memberships.insert_one(membership.model_dump())
     return Certificate(
-        id=pledge.id,
-        name=pledge.name,
-        institution=pledge.institution,
-        region=pledge.region,
-        tier=pledge.tier,
-        date=pledge.created_at,
+        id=membership.id,
+        name=membership.name,
+        institution=membership.institution,
+        region=membership.region,
+        tier=membership.tier,
+        amount_usd=membership.amount_usd,
+        status=membership.status,
+        date=membership.created_at,
     )
 
 

@@ -16,7 +16,7 @@ const CARD_ROW_INDEXES = [0, 2, 3, 4, 5];
 
 /**
  * One-tap shareable image summarising NESU's asset backing vs Bitcoin.
- * Rendered on the Comparison tab and after the pledge certificate.
+ * Rendered on the Comparison tab and after the membership certificate.
  */
 export function ShareCard({ heading, testID = "share-card" }: { heading?: string; testID?: string }) {
   const styles = useStyles();

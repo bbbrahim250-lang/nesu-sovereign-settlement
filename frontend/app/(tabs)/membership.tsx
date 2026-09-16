@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState } from "react";
-import { ActivityIndicator, Platform, Pressable, TextInput, View } from "react-native";
+import { ActivityIndicator, Platform, Pressable, ScrollView, TextInput, View } from "react-native";
 import ViewShot from "react-native-view-shot";
 import Ionicons from "@react-native-vector-icons/ionicons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -11,15 +11,13 @@ import { ShareCard } from "@/src/components/ShareCard";
 import { Txt } from "@/src/components/Txt";
 import { useToast } from "@/src/components/Toast";
 import { useLang } from "@/src/i18n";
-import { REGIONS, TIERS } from "@/src/i18n/content";
-import { fetchTotals, submitPledge, type Certificate } from "@/src/api";
+import { MEMBERSHIP_TIERS, REGIONS, type MembershipTier } from "@/src/i18n/content";
+import { fetchTotals, submitMembership, type Certificate } from "@/src/api";
 import { makeStyles, radius, spacing, useTheme } from "@/src/theme";
 
-function formatMoney(n: number) {
-  return "$" + n.toLocaleString("en-US");
-}
+const CARD_WIDTH = 272;
 
-export default function PledgeScreen() {
+export default function MembershipScreen() {
   const styles = useStyles();
   const { colors } = useTheme();
   const { t, tc, isRTL } = useLang();
@@ -33,7 +31,7 @@ export default function PledgeScreen() {
   const [country, setCountry] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
-  const [tier, setTier] = useState<number>(TIERS[0]);
+  const [tierKey, setTierKey] = useState<string>(MEMBERSHIP_TIERS[0].key);
   const [region, setRegion] = useState<string | null>(null);
 
   const [certificate, setCertificate] = useState<Certificate | null>(null);
@@ -42,14 +40,14 @@ export default function PledgeScreen() {
   const shotRef = useRef<ViewShot>(null);
 
   const mutation = useMutation({
-    mutationFn: submitPledge,
+    mutationFn: submitMembership,
     onSuccess: (cert) => {
       setCertificate(cert);
       setCertReady(false);
       queryClient.invalidateQueries({ queryKey: ["totals"] });
-      toast.show(t("pledge_success"), "success");
+      toast.show(t("mem_success"), "success");
     },
-    onError: () => toast.show(t("pledge_error"), "error"),
+    onError: () => toast.show(t("mem_error"), "error"),
   });
 
   const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
@@ -58,7 +56,7 @@ export default function PledgeScreen() {
 
   const onSubmit = () => {
     if (!canSubmit) {
-      toast.show(t("pledge_required"), "error");
+      toast.show(t("mem_required"), "error");
       return;
     }
     mutation.mutate({
@@ -67,7 +65,7 @@ export default function PledgeScreen() {
       country: country.trim(),
       email: email.trim(),
       message: message.trim() || undefined,
-      tier,
+      tier: tierKey,
       region: region!,
     });
   };
@@ -80,7 +78,7 @@ export default function PledgeScreen() {
     setCountry("");
     setEmail("");
     setMessage("");
-    setTier(TIERS[0]);
+    setTierKey(MEMBERSHIP_TIERS[0].key);
     setRegion(null);
   };
 
@@ -119,29 +117,32 @@ export default function PledgeScreen() {
     return r ? tc(r.label) : certificate.region;
   }, [certificate, tc]);
 
+  const selectedTier = MEMBERSHIP_TIERS.find((x) => x.key === tierKey)!;
+  const orderedTiers = isRTL ? [...MEMBERSHIP_TIERS].reverse() : MEMBERSHIP_TIERS;
+
   return (
-    <Screen testID="pledge-screen" keyboardAware>
+    <Screen testID="membership-screen" keyboardAware>
       <Txt variant="display" size={30} weight="700" color={colors.onSurface}>
-        {t("pledge_title")}
+        {t("mem_title")}
       </Txt>
       <Txt size={13} color={colors.muted} style={styles.sub}>
-        {t("pledge_sub")}
+        {t("mem_sub")}
       </Txt>
 
       {/* Live shared totals */}
-      <View style={styles.totalsCard} testID="pledge-totals">
+      <View style={styles.totalsCard} testID="membership-totals">
         <Txt size={13} weight="600" color={colors.muted}>
-          {t("pledge_totals_title")}
+          {t("mem_totals_title")}
         </Txt>
         {totalsQuery.isLoading ? (
           <ActivityIndicator color={colors.brandPrimary} style={{ marginVertical: spacing.md }} />
         ) : (
           <>
-            <Txt variant="display" size={48} weight="700" color={colors.brandPrimary} testID="pledge-total-count">
+            <Txt variant="display" size={48} weight="700" color={colors.brandPrimary} testID="membership-total-count">
               {totalsQuery.data?.total ?? 0}
             </Txt>
             <Txt size={12} color={colors.muted} style={styles.byRegionLabel}>
-              {t("pledge_totals_by_region")}
+              {t("mem_totals_by_region")}
             </Txt>
             <View style={styles.regionGrid}>
               {REGIONS.map((r) => (
@@ -164,6 +165,7 @@ export default function PledgeScreen() {
       {certificate ? (
         <CertificateBlock
           certificate={certificate}
+          tier={MEMBERSHIP_TIERS.find((x) => x.key === certificate.tier) ?? selectedTier}
           regionLabel={regionLabel}
           shotRef={shotRef}
           onLayoutReady={() => setCertReady(true)}
@@ -174,37 +176,40 @@ export default function PledgeScreen() {
         />
       ) : (
         <View style={styles.form}>
-          {/* Tier */}
-          <Field label={t("pledge_tier")}>
-            <View style={styles.pillWrap}>
-              {TIERS.map((tv) => {
-                const active = tier === tv;
-                return (
-                  <Pressable
-                    key={tv}
-                    testID={`tier-${tv}`}
-                    onPress={() => setTier(tv)}
-                    style={[styles.pill, active ? styles.pillActive : styles.pillIdle]}
-                  >
-                    <Txt size={13} weight="700" color={active ? colors.onBrandPrimary : colors.onSurfaceSecondary}>
-                      {formatMoney(tv)}
-                    </Txt>
-                  </Pressable>
-                );
-              })}
+          {/* Tier cards */}
+          <Field label={t("mem_tier")} hint={t("mem_tier_hint")}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.cardsRow}
+              style={styles.cardsScroll}
+              testID="tier-cards"
+            >
+              {orderedTiers.map((tier) => (
+                <TierCard key={tier.key} tier={tier} active={tier.key === tierKey} onPress={() => setTierKey(tier.key)} />
+              ))}
+            </ScrollView>
+            <View style={[styles.selectedRow, isRTL && styles.rowRTL]} testID="selected-tier">
+              <View style={[styles.dot, { backgroundColor: selectedTier.accent }]} />
+              <Txt size={13} weight="700" color={colors.onSurface}>
+                {tc(selectedTier.name)} {t("mem_membership")}
+              </Txt>
+              <Txt size={13} color={colors.muted}>
+                · {tc(selectedTier.amount)}
+              </Txt>
             </View>
           </Field>
 
-          <Field label={t("pledge_name")}>
+          <Field label={t("mem_name")}>
             <Input value={name} onChangeText={setName} testID="input-name" />
           </Field>
-          <Field label={t("pledge_institution")}>
+          <Field label={t("mem_institution")}>
             <Input value={institution} onChangeText={setInstitution} testID="input-institution" />
           </Field>
-          <Field label={t("pledge_country")}>
+          <Field label={t("mem_country")}>
             <Input value={country} onChangeText={setCountry} testID="input-country" />
           </Field>
-          <Field label={t("pledge_email")}>
+          <Field label={t("mem_email")}>
             <Input
               value={email}
               onChangeText={setEmail}
@@ -215,7 +220,7 @@ export default function PledgeScreen() {
           </Field>
 
           {/* Region select */}
-          <Field label={t("pledge_region")} hint={t("pledge_region_hint")}>
+          <Field label={t("mem_region")} hint={t("mem_region_hint")}>
             <View style={styles.pillWrap}>
               {REGIONS.map((r) => {
                 const active = region === r.key;
@@ -240,7 +245,7 @@ export default function PledgeScreen() {
             </View>
           </Field>
 
-          <Field label={t("pledge_message")}>
+          <Field label={t("mem_message")}>
             <Input value={message} onChangeText={setMessage} multiline testID="input-message" />
           </Field>
 
@@ -248,12 +253,12 @@ export default function PledgeScreen() {
           <View style={[styles.privacyRow, isRTL && styles.rowRTL]}>
             <Ionicons name="lock-closed" size={14} color={colors.muted} style={{ marginTop: 2 }} />
             <Txt size={11} color={colors.muted} style={styles.privacyText}>
-              {t("pledge_privacy")}
+              {t("mem_privacy")}
             </Txt>
           </View>
 
           <Pressable
-            testID="submit-pledge"
+            testID="submit-membership"
             onPress={onSubmit}
             disabled={!canSubmit}
             style={[styles.submit, !canSubmit && styles.submitDisabled]}
@@ -262,7 +267,7 @@ export default function PledgeScreen() {
               <ActivityIndicator color={colors.onBrandPrimary} />
             ) : (
               <Txt size={15} weight="700" align="center" color={colors.onBrandPrimary}>
-                {t("pledge_submit")}
+                {t("mem_submit")}
               </Txt>
             )}
           </Pressable>
@@ -272,8 +277,67 @@ export default function PledgeScreen() {
   );
 }
 
+/** A selectable membership card modelled on the NESU GOV · POWER · TRADE · CARD artwork. */
+function TierCard({ tier, active, onPress }: { tier: MembershipTier; active: boolean; onPress: () => void }) {
+  const styles = useStyles();
+  const { colors } = useTheme();
+  const { t, tc, isRTL } = useLang();
+  return (
+    <Pressable
+      testID={`tier-${tier.key}`}
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityState={{ selected: active }}
+      style={[
+        styles.card,
+        { backgroundColor: tier.body, borderColor: active ? colors.brandPrimary : tier.accent },
+        active && styles.cardActive,
+      ]}
+    >
+      <View style={[styles.cardTop, isRTL && styles.rowRTL]}>
+        <View style={[styles.cardBrand, isRTL && styles.rowRTL]}>
+          <Logo size={26} />
+          <Txt variant="display" size={16} weight="700" color={tier.accent}>
+            NESU
+          </Txt>
+        </View>
+        <Txt size={8} weight="700" color={tier.accent} style={styles.cardLine}>
+          {t("mem_card_line")}
+        </Txt>
+      </View>
+
+      <View style={styles.cardMid}>
+        <View style={[styles.chip, { borderColor: tier.accent }]} />
+        <View style={styles.cardMidText}>
+          <Txt variant="display" size={22} weight="700" color={tier.accent}>
+            {tc(tier.name).toUpperCase()}
+          </Txt>
+          <Txt size={9} weight="700" color={colors.onSurfaceSecondary} style={styles.cardLine}>
+            {t("mem_membership").toUpperCase()}
+          </Txt>
+        </View>
+      </View>
+
+      <Txt variant="display" size={20} weight="700" color={colors.onSurface}>
+        {tc(tier.amount)}
+      </Txt>
+
+      <View style={[styles.cardBottom, isRTL && styles.rowRTL]}>
+        <Txt size={9} weight="700" color={colors.onSurfaceSecondary} style={styles.cardLine}>
+          {t("mem_global_member")}
+        </Txt>
+        {active ? <Ionicons name="checkmark-circle" size={18} color={colors.brandPrimary} /> : null}
+      </View>
+      <Txt size={9} color={tier.accent} numberOfLines={1}>
+        {tc(tier.tagline)}
+      </Txt>
+    </Pressable>
+  );
+}
+
 function CertificateBlock({
   certificate,
+  tier,
   regionLabel,
   shotRef,
   onLayoutReady,
@@ -283,6 +347,7 @@ function CertificateBlock({
   onReset,
 }: {
   certificate: Certificate;
+  tier: MembershipTier;
   regionLabel: string;
   shotRef: React.RefObject<ViewShot>;
   onLayoutReady: () => void;
@@ -293,13 +358,13 @@ function CertificateBlock({
 }) {
   const styles = useStyles();
   const { colors } = useTheme();
-  const { t } = useLang();
+  const { t, tc } = useLang();
 
   return (
     <View style={styles.certWrap}>
       <ViewShot ref={shotRef} options={{ format: "png", quality: 1 }}>
         <View
-          style={styles.cert}
+          style={[styles.cert, { borderColor: tier.accent }]}
           collapsable={false}
           // Enable save/share only once the certificate has fully laid out —
           // capturing before layout produces a blank/zero-size image.
@@ -307,7 +372,7 @@ function CertificateBlock({
           testID="certificate"
         >
           {/* watermark */}
-          <View style={styles.watermark} pointerEvents="none">
+          <View style={styles.watermark}>
             <Txt size={13} weight="700" align="center" color={colors.brandPrimary} style={styles.watermarkText}>
               {t("cert_watermark")}
             </Txt>
@@ -315,6 +380,9 @@ function CertificateBlock({
 
           <View style={styles.certHead}>
             <Logo size={48} />
+            <Txt size={9} weight="700" color={colors.muted} style={styles.cardLine}>
+              {t("mem_card_line")}
+            </Txt>
             <Txt variant="display" size={24} weight="700" align="center" color={colors.brandPrimary} style={styles.certTitle}>
               {t("cert_title")}
             </Txt>
@@ -322,11 +390,26 @@ function CertificateBlock({
 
           <View style={styles.certDivider} />
 
-          <CertRow label={t("cert_tier")} value={formatMoney(certificate.tier)} big />
+          <View style={styles.certRow}>
+            <Txt size={11} weight="600" align="center" color={colors.muted}>
+              {t("cert_tier").toUpperCase()}
+            </Txt>
+            <View style={[styles.tierBadge, { borderColor: tier.accent }]}>
+              <View style={[styles.dot, { backgroundColor: tier.accent }]} />
+              <Txt variant="display" size={22} weight="700" color={tier.accent}>
+                {tc(tier.name)} {t("mem_membership")}
+              </Txt>
+            </View>
+            <Txt size={15} weight="700" align="center" color={colors.onSurface}>
+              {tc(tier.amount)}
+            </Txt>
+          </View>
+
           <CertRow label={t("cert_name")} value={certificate.name} />
           <CertRow label={t("cert_institution")} value={certificate.institution} />
           <CertRow label={t("cert_region")} value={regionLabel} />
           <CertRow label={t("cert_date")} value={dayjs(certificate.date).format("DD MMM YYYY")} />
+          <CertRow label={t("cert_status")} value={t("cert_status_value")} small />
 
           <View style={styles.certDivider} />
           <Txt size={11} align="center" color={colors.muted}>
@@ -353,20 +436,20 @@ function CertificateBlock({
         )}
       </Pressable>
 
-      <Pressable testID="new-pledge" onPress={onReset} style={styles.secondaryBtn}>
+      <Pressable testID="new-membership" onPress={onReset} style={styles.secondaryBtn}>
         <Txt size={14} weight="600" align="center" color={colors.brandPrimary}>
           {t("cert_new")}
         </Txt>
       </Pressable>
 
       <View style={styles.shareWrap}>
-        <ShareCard heading={t("share_after_cert")} testID="pledge-share-card" />
+        <ShareCard heading={t("share_after_cert")} testID="membership-share-card" />
       </View>
     </View>
   );
 }
 
-function CertRow({ label, value, big }: { label: string; value: string; big?: boolean }) {
+function CertRow({ label, value, small }: { label: string; value: string; small?: boolean }) {
   const styles = useStyles();
   const { colors } = useTheme();
   return (
@@ -374,13 +457,7 @@ function CertRow({ label, value, big }: { label: string; value: string; big?: bo
       <Txt size={11} weight="600" align="center" color={colors.muted}>
         {label.toUpperCase()}
       </Txt>
-      <Txt
-        variant={big ? "display" : "body"}
-        size={big ? 26 : 16}
-        weight="700"
-        align="center"
-        color={colors.onSurface}
-      >
+      <Txt size={small ? 13 : 16} weight={small ? "600" : "700"} align="center" color={colors.onSurface}>
         {value}
       </Txt>
     </View>
@@ -392,11 +469,11 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
   const { colors } = useTheme();
   return (
     <View style={styles.field}>
-      <Txt size={13} weight="600" color={colors.onSurfaceSecondary} style={styles.fieldLabel}>
+      <Txt size={13} weight="600" color={colors.onSurfaceSecondary}>
         {label}
       </Txt>
       {hint ? (
-        <Txt size={11} color={colors.muted} style={styles.fieldHint}>
+        <Txt size={11} color={colors.muted}>
           {hint}
         </Txt>
       ) : null}
@@ -461,8 +538,6 @@ const useStyles = makeStyles((colors) => ({
 
   form: { gap: spacing.lg },
   field: { gap: spacing.xs },
-  fieldLabel: {},
-  fieldHint: {},
   input: {
     backgroundColor: colors.surfaceTertiary,
     borderWidth: 1,
@@ -475,13 +550,35 @@ const useStyles = makeStyles((colors) => ({
   },
   inputMultiline: { minHeight: 80, textAlignVertical: "top" },
 
-  pillWrap: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
-  pill: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: 10,
-    borderRadius: radius.pill,
-    borderWidth: 1,
+  // tier cards
+  cardsScroll: { marginHorizontal: -spacing.lg, marginTop: spacing.xs },
+  cardsRow: { paddingHorizontal: spacing.lg, gap: spacing.md },
+  card: {
+    width: CARD_WIDTH,
+    borderRadius: radius.lg,
+    borderWidth: 1.5,
+    padding: spacing.md,
+    gap: spacing.sm,
+    overflow: "hidden",
   },
+  cardActive: { borderWidth: 2.5 },
+  cardTop: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: spacing.sm },
+  cardBrand: { flexDirection: "row", alignItems: "center", gap: spacing.xs },
+  cardLine: { letterSpacing: 1.2 },
+  cardMid: { flexDirection: "row", alignItems: "center", gap: spacing.md, marginTop: spacing.xs },
+  cardMidText: { flex: 1 },
+  chip: {
+    width: 34,
+    height: 26,
+    borderRadius: 6,
+    borderWidth: 1.5,
+    backgroundColor: colors.brandTertiary,
+  },
+  cardBottom: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  selectedRow: { flexDirection: "row", alignItems: "center", gap: spacing.sm, marginTop: spacing.sm },
+  dot: { width: 10, height: 10, borderRadius: 5 },
+
+  pillWrap: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
   regionPill: {
     paddingHorizontal: spacing.md,
     paddingVertical: 10,
@@ -512,7 +609,6 @@ const useStyles = makeStyles((colors) => ({
   cert: {
     backgroundColor: colors.surfaceSecondary,
     borderWidth: 1.5,
-    borderColor: colors.brandPrimary,
     borderRadius: radius.lg,
     padding: spacing.xl,
     overflow: "hidden",
@@ -523,6 +619,7 @@ const useStyles = makeStyles((colors) => ({
     bottom: 0,
     left: 0,
     right: 0,
+    pointerEvents: "none",
     alignItems: "center",
     justifyContent: "center",
     opacity: 0.12,
@@ -532,6 +629,15 @@ const useStyles = makeStyles((colors) => ({
   certHead: { alignItems: "center", gap: spacing.sm },
   certTitle: { letterSpacing: 0.5 },
   certDivider: { height: 1, backgroundColor: colors.divider, marginVertical: spacing.lg },
-  certRow: { alignItems: "center", gap: 3, marginBottom: spacing.md },
+  certRow: { alignItems: "center", gap: 4, marginBottom: spacing.md },
+  tierBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+    borderWidth: 1,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.md,
+    paddingVertical: 6,
+  },
   certId: { marginTop: 2 },
 }));
