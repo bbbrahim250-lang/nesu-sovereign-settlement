@@ -66,6 +66,12 @@ EN/FR/ع switcher and a footer disclaimer appear on every screen.
 - Home hero now shows the official NESU brand artwork (`assets/images/hero.jpg`).
 - Counter reset to zero after testing.
 
+## Implemented (iteration 4) — Confirmation emails
+- `backend/emailer.py`: Emergent managed email (Resend proxy). On every membership request the backend
+  sends (as a background task) a confirmation to the applicant and a notification to the team inbox
+  `TEAM_EMAIL=institutional@nesu-sovereign-settlement.ch` (also Reply-To). `EMAIL_FROM_NAME=NESU`.
+  Server-side templates only; guardrail gate applied on every send. Verified 202 Accepted for both sends.
+
 ## Backlog / Remaining
 - **P1:** Swap interim icon for the official `nesu_app_icon_v2_1024.png` when the upload arrives.
 - **P1:** Wire the real Conceptual Proposal PDF when attached.

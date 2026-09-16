@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, HTTPException
+from fastapi import FastAPI, APIRouter, BackgroundTasks, HTTPException
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -13,6 +13,8 @@ from datetime import datetime, timezone
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
+
+from emailer import send_membership_emails  # noqa: E402  (needs .env loaded first)
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
@@ -99,7 +101,7 @@ async def get_totals():
 
 
 @api_router.post("/memberships", response_model=Certificate)
-async def create_membership(payload: MembershipCreate):
+async def create_membership(payload: MembershipCreate, background: BackgroundTasks):
     if payload.region not in REGIONS:
         raise HTTPException(status_code=422, detail="Invalid region")
     if payload.tier not in TIERS:
@@ -116,6 +118,9 @@ async def create_membership(payload: MembershipCreate):
         region=payload.region,
     )
     await db.memberships.insert_one(membership.model_dump())
+    # Confirmation to the applicant + notification to the institutional team,
+    # sent after the response so a mail outage never blocks the request.
+    background.add_task(send_membership_emails, membership.model_dump())
     return Certificate(
         id=membership.id,
         name=membership.name,
