@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState } from "react";
-import { ActivityIndicator, Platform, Pressable, ScrollView, TextInput, View } from "react-native";
+import { ActivityIndicator, Platform, Pressable, TextInput, View } from "react-native";
 import ViewShot from "react-native-view-shot";
 import Ionicons from "@react-native-vector-icons/ionicons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -16,8 +16,6 @@ import { useLang } from "@/src/i18n";
 import { MEMBERSHIP_TIERS, REGIONS, type MembershipTier } from "@/src/i18n/content";
 import { fetchTotals, submitMembership, type Certificate } from "@/src/api";
 import { makeStyles, radius, spacing, useTheme } from "@/src/theme";
-
-const CARD_WIDTH = 272;
 
 export default function MembershipScreen() {
   const styles = useStyles();
@@ -121,7 +119,6 @@ export default function MembershipScreen() {
   }, [certificate, tc]);
 
   const selectedTier = MEMBERSHIP_TIERS.find((x) => x.key === tierKey)!;
-  const orderedTiers = isRTL ? [...MEMBERSHIP_TIERS].reverse() : MEMBERSHIP_TIERS;
 
   return (
     <Screen testID="membership-screen" keyboardAware>
@@ -181,17 +178,11 @@ export default function MembershipScreen() {
         <View style={styles.form}>
           {/* Tier cards */}
           <Field label={t("mem_tier")} hint={t("mem_tier_hint")}>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.cardsRow}
-              style={styles.cardsScroll}
-              testID="tier-cards"
-            >
-              {orderedTiers.map((tier) => (
+            <View style={styles.cardsStack} testID="tier-cards">
+              {MEMBERSHIP_TIERS.map((tier) => (
                 <TierCard key={tier.key} tier={tier} active={tier.key === tierKey} onPress={() => setTierKey(tier.key)} />
               ))}
-            </ScrollView>
+            </View>
             <View style={[styles.selectedRow, isRTL && styles.rowRTL]} testID="selected-tier">
               <View style={[styles.dot, { backgroundColor: selectedTier.accent }]} />
               <Txt size={13} weight="700" color={colors.onSurface}>
@@ -586,11 +577,10 @@ const useStyles = makeStyles((colors) => ({
   },
   inputMultiline: { minHeight: 80, textAlignVertical: "top" },
 
-  // tier cards
-  cardsScroll: { marginHorizontal: -spacing.lg, marginTop: spacing.xs },
-  cardsRow: { paddingHorizontal: spacing.lg, gap: spacing.md },
+  // tier cards — all five visible, stacked
+  cardsStack: { gap: spacing.sm, marginTop: spacing.xs },
   card: {
-    width: CARD_WIDTH,
+    width: "100%",
     borderRadius: radius.lg,
     borderWidth: 1.5,
     padding: spacing.md,

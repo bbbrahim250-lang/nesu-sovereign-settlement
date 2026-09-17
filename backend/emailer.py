@@ -4,6 +4,7 @@ Recipients and bodies are decided server-side from the stored membership record
 (no caller-supplied recipient/subject/HTML). Failures are logged and never fail
 the membership submission itself.
 """
+import asyncio
 import ipaddress
 import logging
 import os
@@ -107,11 +108,15 @@ async def send_email(*, to: str, subject: str, html: str) -> str | None:
         payload["contact_email"] = EMAIL_REPLY_TO
     try:
         async with httpx.AsyncClient(timeout=30) as client:
-            resp = await client.post(
-                f"{EMAIL_BASE_URL}/api/v1/email/send",
-                headers={"X-Email-Key": EMAIL_KEY},
-                json=payload,
-            )
+            for attempt in range(3):
+                resp = await client.post(
+                    f"{EMAIL_BASE_URL}/api/v1/email/send",
+                    headers={"X-Email-Key": EMAIL_KEY},
+                    json=payload,
+                )
+                if resp.status_code != 429:
+                    break
+                await asyncio.sleep(2 * (attempt + 1))  # rate-limited: back off and retry
         resp.raise_for_status()
         return resp.json().get("id")
     except httpx.HTTPStatusError as e:
@@ -230,3 +235,45 @@ async def send_membership_emails(m: dict) -> None:
         subject=f"[NESU] New {tier_name} Membership request — {m['institution']}",
         html=team_html,
     )
+
+
+STATUS_COPY = {
+    "in_review": (
+        "Your membership request is now in review",
+        "Good news — the NESU institutional team has started reviewing your request. "
+        "We may contact you at this address if any additional information is needed.",
+        "In review",
+    ),
+    "approved": (
+        "Your NESU membership request has been approved",
+        "We are pleased to confirm that your membership request has been <strong>approved</strong>. "
+        "The institutional team will now contact you to finalise the membership agreement; membership fees "
+        "are settled by wire transfer under that signed agreement — nothing is charged through the app.",
+        "Approved",
+    ),
+    "declined": (
+        "Update on your NESU membership request",
+        "After review, the institutional team was not able to approve this membership request at this time. "
+        "You are welcome to reply to this email for further details or to discuss an alternative tier.",
+        "Declined",
+    ),
+}
+
+
+async def send_status_email(m: dict) -> None:
+    """Notify the applicant when the team moves a request to in_review / approved / declined."""
+    copy = STATUS_COPY.get(m["status"])
+    if not copy:
+        return
+    subject, intro, label = copy
+    tier_name, _ = TIER_LABELS.get(m["tier"], (m["tier"], ""))
+    pairs = [p for p in _pairs(m) if p[0] != "Status"] + [("Status", label)]
+    contact = escape(EMAIL_REPLY_TO or TEAM_EMAIL)
+    html = _shell(
+        subject,
+        f"Dear {escape(m['name'])},<br><br>{intro}",
+        pairs,
+        f"You can also follow your request in the NESU app under “Track a request” with the ID above.<br><br>"
+        f'Questions? Reply to this email or write to <a href="mailto:{contact}" style="color:#D4AF37">{contact}</a>.',
+    )
+    await send_email(to=m["email"], subject=f"NESU — {subject} ({tier_name})", html=html)

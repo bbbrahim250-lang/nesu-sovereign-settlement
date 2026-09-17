@@ -14,7 +14,7 @@ from datetime import datetime, timezone
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-from emailer import send_membership_emails  # noqa: E402  (needs .env loaded first)
+from emailer import send_membership_emails, send_status_email  # noqa: E402  (needs .env loaded first)
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
@@ -66,6 +66,7 @@ class Membership(BaseModel):
     region: str
     status: str = "pending_review"
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    updated_at: Optional[str] = None
     deleted_at: Optional[str] = None
 
 
@@ -171,20 +172,48 @@ async def get_request_status(request_id: str):
 
 
 @api_router.patch("/memberships/{request_id}/status", response_model=RequestStatus)
-async def update_request_status(request_id: str, payload: StatusUpdate, x_admin_key: str = Header(default="")):
-    """Team-only: move a request between pending_review / in_review / approved / declined."""
-    if not ADMIN_KEY or x_admin_key != ADMIN_KEY:
-        raise HTTPException(status_code=401, detail="Unauthorized")
+async def update_request_status(
+    request_id: str, payload: StatusUpdate, background: BackgroundTasks, x_admin_key: str = Header(default="")
+):
+    """Team-only: move a request between pending_review / in_review / approved / declined.
+    The applicant is emailed when the status actually changes."""
+    _require_admin(x_admin_key)
     if payload.status not in STATUSES:
         raise HTTPException(status_code=422, detail="Invalid status")
     now = datetime.now(timezone.utc).isoformat()
-    res = await db.memberships.update_one(
-        {"id": request_id.strip().lower(), "deleted_at": None},
+    doc = await db.memberships.find_one_and_update(
+        {"id": request_id.strip().lower(), "deleted_at": None, "status": {"$ne": payload.status}},
         {"$set": {"status": payload.status, "updated_at": now}},
+        projection={"_id": 0},
+        return_document=True,
     )
-    if res.matched_count == 0:
-        raise HTTPException(status_code=404, detail="Request not found")
+    if doc:
+        background.add_task(send_status_email, doc)
     return await get_request_status(request_id)
+
+
+def _require_admin(key: str) -> None:
+    if not ADMIN_KEY or key != ADMIN_KEY:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
+
+@api_router.post("/admin/verify")
+async def admin_verify(x_admin_key: str = Header(default="")):
+    _require_admin(x_admin_key)
+    return {"ok": True}
+
+
+@api_router.get("/admin/memberships", response_model=List[Membership])
+async def admin_list_memberships(status: Optional[str] = None, x_admin_key: str = Header(default="")):
+    """Team console: full request records (incl. contact details), newest first."""
+    _require_admin(x_admin_key)
+    query: dict = {"deleted_at": None}
+    if status:
+        if status not in STATUSES:
+            raise HTTPException(status_code=422, detail="Invalid status")
+        query["status"] = status
+    docs = await db.memberships.find(query, {"_id": 0}).sort("created_at", -1).to_list(500)
+    return [Membership(**d) for d in docs]
 
 
 app.include_router(api_router)

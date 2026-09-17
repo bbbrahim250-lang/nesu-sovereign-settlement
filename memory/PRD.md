@@ -83,8 +83,22 @@ EN/FR/ع switcher and a footer disclaimer appear on every screen.
 - Docs: real NESU Conceptual Proposal (Combined v2) wired — no stand-ins remain.
 - Counter reset to zero.
 
+## Implemented (iteration 6) — Team console, status emails, Home membership section
+- Team console `app/team.tsx` (route /team, discreet footer link on every screen): unlock with ADMIN_KEY
+  (SecureStore native / AsyncStorage web), filter chips, request cards with contact details, status action
+  buttons with confirm, lock. Endpoints: `POST /api/admin/verify`, `GET /api/admin/memberships[?status=]`,
+  `PATCH /api/memberships/{id}/status` (all X-Admin-Key). 20/20 backend tests.
+- Status emails: applicant is emailed when status becomes in_review / approved / declined
+  (`emailer.send_status_email`, background task, 429 retry with backoff).
+- Home: smaller brand hero with tagline beneath (no overlap) + "Membership tiers" section (uploaded cards
+  artwork `assets/images/membership-cards.jpg` + 5 tappable tier rows → Membership tab).
+- Membership tab: all five tier cards stacked vertically (all visible).
+- Note: the "nesu_app_icon_v2_1024.png" upload was actually the 924×2000 splash artwork again, so the
+  icon remains the emblem crop derived from that artwork.
+
 ## Backlog / Remaining
-- **P1:** Swap interim icon for the official `nesu_app_icon_v2_1024.png` when the upload arrives.
+- **P1:** Privacy-policy URL → add link in footer once the user provides it (store review).
+- **P1:** Swap interim icon if a true 1024×1024 icon file is provided.
 - **P2:** Corridor detail pages with GCRS score.
 
 ## Native-build notes

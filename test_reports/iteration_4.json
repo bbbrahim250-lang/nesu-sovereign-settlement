@@ -1,0 +1,34 @@
+{
+  "summary": "Iteration 4 — Team Console + status emails + Home membership section + all-5-tiers Membership + real Docs PDF. Backend: 20/20 pytest cases passed against the public URL — POST /api/admin/verify (200 with correct X-Admin-Key, 401 on wrong/missing), GET /api/admin/memberships (401 without key, returns full records incl. name/email/message, filter ?status=... honoured, invalid status → 422), PATCH /api/memberships/{id}/status (401 without key, 422 for invalid status, transitions pending_review→in_review→approved and pending_review→declined, idempotent when re-applying same status → 200, unknown id → 404), public GET /api/memberships/{id}/status returns id/institution/tier/region/status/date/updated_at only (no name/email). Regression: POST /api/memberships still returns Certificate with correct amount_usd for all 5 tiers; /api/memberships/totals still returns {total, by_region{europe,united_states,algeria,middle_east_gulf,brics,africa}}. Backend log confirmed 'HTTP/1.1 202 Accepted' from https://integrations.emergentagent.com/api/v1/email/send on POST /api/memberships (2 emails: applicant + team) and on PATCH status change (1 email). NOTE: rapid PATCH loop in tests briefly hit 429 Too Many Requests from the email proxy — expected under burst, not a code bug. Frontend (390x844, EN + AR): Home shows the smaller hero image with the EN tagline 'NUR Energy Settlement Unit' beneath (not overlapping), a new 'home-membership' section with cards image + all 5 tappable rows home-tier-bronze/silver/gold/diamond/platinum + home-membership-cta; tapping any row or the CTA navigates to /membership. Membership tab: tier-cards contains all five cards tier-bronze..tier-platinum visible on a 390-wide viewport without horizontal scroll; tapping tier-gold updates tier-benefits copy accordingly. Docs: doc-proposal opens (no 'Preview copy' pill anywhere — DOCUMENTS all have standin:false). Footer team-console-link visible on every screen. Team console: wrong key shows team-key-invalid; correct key opens team-console with filter chips filter-all/filter-pending_review/filter-in_review/filter-approved/filter-declined; found 5 real request cards; tapping a set-{status}-{id} action fired window.confirm (auto-accepted), status pill updated (Declined → Pending review), toast 'Status updated and applicant notified.' shown; team-lock returned to the key screen. AR run confirmed 'لوحة الفريق' title, 'فتح' unlock button, RTL layout (html dir='rtl'), AR tagline 'وحدة تسوية الطاقة نور' on Home, and 'لوحة الفريق' footer link. Copy audit: 0 occurrences of 'pledge', 'Pledge', 'symbolic', or 'Preview copy' anywhere in rendered EN/FR/AR Home + Docs + Team pages. No React Native red-screen; no console errors (only a benign 401 response from the intentional wrong-key attempt).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_team_console.py",
+    "/app/test_reports/pytest/iteration_4.xml"
+  ],
+  "action_items": [
+    "RESET SHARED COUNTER — this test run inserted 2 new TEST_* membership records (1 bronze/europe, 1 gold/africa) via the pytest suite. Combined with any prior TEST_* rows this iteration lands on top of, the memberships collection now contains those + previous seed data. Main agent should clear (or delete TEST_*-prefixed rows in) the `memberships` collection before hand-off so the /membership counter reads 0.",
+    "OPTIONAL: the Emergent email proxy returned 429 Too Many Requests for a few PATCH-triggered emails during the burst of transition tests. The membership submission path is unaffected (both applicant+team emails on POST returned 202). Consider a small in-process retry-with-backoff in emailer.send_email for 429s if this becomes visible in production.",
+    "OPTIONAL cleanup: dead i18n key 'doc_standin' remains in strings.ts (EN 'Preview copy' / FR 'Copie de prévisualisation' / AR 'نسخة معاينة') and is referenced by research.tsx:66 inside an `if (d.standin)` branch that is now always false. Currently harmless — it is never rendered — but you can remove both the key and the branch to keep the codebase clean."
+  ],
+  "critical_code_review_comments": [
+    "server.py is still compact (<240 lines), keeps _id excluded via projection, uses env vars only, and uses find_one_and_update with a $ne guard so a same-status PATCH is naturally idempotent and does not fire an email.",
+    "emailer.py runs a solid structural guardrail before every send (no forms, https-only links, no credential-ask phrases, anchor-vs-href host match).",
+    "team.tsx correctly handles web vs native confirm dialog (window.confirm on web, Alert.alert elsewhere), stores the key in AsyncStorage on web and SecureStore on native, and locks on UnauthorizedError.",
+    "Footer.tsx exposes the team console entry point via testID team-console-link on every screen, RTL-aware.",
+    "All new interactive elements carry testIDs (home-tier-*, home-membership, home-membership-cta, tier-cards, team-console, team-key-input, team-unlock, team-lock, team-key-invalid, filter-*, request-{id}, status-{id}, set-{status}-{id}, team-console-link)."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_team_console.py (created)"
+  ],
+  "success_rate": {"backend": "100% (20/20)", "frontend": "100% of tested flows"},
+  "seed_data_creation": "Backend pytest created 2 TEST_* membership records (1 bronze/europe with status transitioned pending_review → in_review → approved; 1 gold/africa transitioned to declined). Main agent should reset the memberships collection before hand-off.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Team console + status emails validated end-to-end. Pytest suite at /app/backend/tests/test_team_console.py (run with `python -m pytest /app/backend/tests/test_team_console.py -v -o addopts=''` to disable xdist since the suite shares an in-memory CREATED_IDS list across ordered tests). ADMIN_KEY is in /app/backend/.env and mirrored in /app/memory/test_credentials.md. Public URL is EXPO_PUBLIC_BACKEND_URL from /app/frontend/.env. Copy audit is clean in EN/FR/AR (no pledge/symbolic/Preview copy). One optional dead i18n key doc_standin remains but is never rendered because DOCUMENTS entries all have standin:false."
+}
