@@ -1,7 +1,6 @@
 import React from "react";
-import { Pressable, StyleSheet, View } from "react-native";
+import { Pressable, View } from "react-native";
 import { Image } from "expo-image";
-import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import Ionicons from "@react-native-vector-icons/ionicons";
 
@@ -25,16 +24,15 @@ export default function HomeScreen() {
 
   return (
     <Screen testID="home-screen" contentStyle={{ padding: 0 }}>
-      {/* Hero — official NESU brand artwork, tagline beneath */}
+      {/* Hero — full NESU · AI · ZERO-INTEREST artwork, centered; text sits below it */}
       <View style={styles.hero}>
-        <Image source={HERO_ART} style={styles.heroImg} contentFit="cover" transition={300} />
-        <LinearGradient colors={["rgba(5,10,16,0)", "rgba(5,10,16,1)"]} locations={[0.7, 1]} style={styles.heroOverlay} />
+        <Image source={HERO_ART} style={styles.heroImg} contentFit="contain" transition={300} />
       </View>
       <View style={styles.heroContent}>
-        <Txt variant="display" size={18} weight="700" align="center" color={colors.brandPrimary}>
+        <Txt variant="display" size={20} weight="700" align="center" color={colors.brandPrimary}>
           {t("tagline")}
         </Txt>
-        <Txt size={12} align="center" color={colors.muted} style={styles.heroInit}>
+        <Txt size={13} align="center" color={colors.onSurfaceSecondary} style={styles.heroInit}>
           {t("initiative")}
         </Txt>
       </View>
@@ -129,11 +127,10 @@ function Row({ icon, color, text, isRTL }: { icon: string; color: string; text: 
 }
 
 const useStyles = makeStyles((colors) => ({
-  hero: { aspectRatio: 800 / 607, width: "100%", maxHeight: 320, alignSelf: "center" },
-  heroImg: { ...StyleSheet.absoluteFillObject },
-  heroOverlay: { ...StyleSheet.absoluteFillObject },
-  heroContent: { alignItems: "center", paddingHorizontal: spacing.xl, paddingTop: spacing.xs, paddingBottom: spacing.sm, gap: 2 },
-  heroInit: { marginTop: 2 },
+  hero: { width: "100%", height: 400, alignItems: "center", justifyContent: "center", paddingTop: spacing.md },
+  heroImg: { width: "100%", height: "100%" },
+  heroContent: { alignItems: "center", paddingHorizontal: spacing.xl, paddingTop: spacing.md, paddingBottom: spacing.sm, gap: 4 },
+  heroInit: { marginTop: 2, lineHeight: 18 },
   memberCard: { borderColor: colors.brandPrimary, gap: spacing.sm },
   memberSub: { lineHeight: 18 },
   cardsImg: { width: "100%", aspectRatio: 1200 / 800, borderRadius: radius.md, marginVertical: spacing.xs },
