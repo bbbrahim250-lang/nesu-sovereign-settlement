@@ -24,15 +24,24 @@ export default function HomeScreen() {
 
   return (
     <Screen testID="home-screen" contentStyle={{ padding: 0 }}>
-      {/* Hero — full NESU · AI · ZERO-INTEREST artwork, centered; text sits below it */}
+      {/* Hero — full NESU · AI · ZERO-INTEREST artwork, edge-to-edge; text sits below it */}
       <View style={styles.hero}>
-        <Image source={HERO_ART} style={styles.heroImg} contentFit="contain" transition={300} />
+        <Image source={HERO_ART} style={styles.heroImg} contentFit="cover" transition={300} />
       </View>
       <View style={styles.heroContent}>
-        <Txt variant="display" size={20} weight="700" align="center" color={colors.brandPrimary}>
+        <Txt
+          variant="display"
+          size={20}
+          weight="700"
+          align="center"
+          color={colors.brandPrimary}
+          numberOfLines={1}
+          adjustsFontSizeToFit
+          minimumFontScale={0.7}
+        >
           {t("tagline")}
         </Txt>
-        <Txt size={13} align="center" color={colors.onSurfaceSecondary} style={styles.heroInit}>
+        <Txt size={12} align="center" color={colors.onSurfaceSecondary} style={styles.heroInit}>
           {t("initiative")}
         </Txt>
       </View>
@@ -127,10 +136,11 @@ function Row({ icon, color, text, isRTL }: { icon: string; color: string; text: 
 }
 
 const useStyles = makeStyles((colors) => ({
-  hero: { width: "100%", height: 400, alignItems: "center", justifyContent: "center", paddingTop: spacing.md },
+  // Image is 720×842; aspectRatio keeps it perfectly proportioned at any screen width.
+  hero: { width: "100%", aspectRatio: 720 / 842, backgroundColor: colors.surfaceSecondary },
   heroImg: { width: "100%", height: "100%" },
-  heroContent: { alignItems: "center", paddingHorizontal: spacing.xl, paddingTop: spacing.md, paddingBottom: spacing.sm, gap: 4 },
-  heroInit: { marginTop: 2, lineHeight: 18 },
+  heroContent: { alignItems: "center", paddingHorizontal: spacing.lg, paddingTop: spacing.md, paddingBottom: spacing.xs, gap: 4 },
+  heroInit: { marginTop: 2, lineHeight: 17 },
   memberCard: { borderColor: colors.brandPrimary, gap: spacing.sm },
   memberSub: { lineHeight: 18 },
   cardsImg: { width: "100%", aspectRatio: 1200 / 800, borderRadius: radius.md, marginVertical: spacing.xs },

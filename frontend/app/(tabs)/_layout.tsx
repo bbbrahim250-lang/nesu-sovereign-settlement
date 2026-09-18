@@ -33,8 +33,9 @@ export default function TabsLayout() {
           borderTopColor: colors.border,
           borderTopWidth: 1,
         },
-        tabBarLabelStyle: { fontSize: 10, fontWeight: "600" },
-        tabBarItemStyle: { alignSelf: "center" },
+        tabBarLabelStyle: { fontSize: 9, fontWeight: "600" },
+        tabBarAllowFontScaling: false,
+        tabBarItemStyle: { alignSelf: "center", paddingHorizontal: 0 },
       }}
     >
       {ordered.map((tab) => (

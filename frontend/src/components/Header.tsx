@@ -43,7 +43,7 @@ export function Header() {
             <Txt variant="display" size={22} weight="700" color={colors.brandPrimary} style={styles.wordmark}>
               {t("appName")}
             </Txt>
-            <Txt size={10} color={colors.muted} numberOfLines={1}>
+            <Txt size={10} color={colors.muted} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>
               {t("tagline")}
             </Txt>
           </View>
@@ -92,8 +92,8 @@ const useStyles = makeStyles((colors) => ({
     justifyContent: "space-between",
   },
   rowRTL: { flexDirection: "row-reverse" },
-  brandRow: { flexDirection: "row", alignItems: "center", flexShrink: 1 },
-  brandText: { marginHorizontal: spacing.sm, flexShrink: 1 },
+  brandRow: { flexDirection: "row", alignItems: "center", flex: 1 },
+  brandText: { marginHorizontal: spacing.sm, flex: 1 },
   wordmark: { lineHeight: 24 },
   switcher: {
     flexDirection: "row",
